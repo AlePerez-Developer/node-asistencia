@@ -1,0 +1,12 @@
+{
+  "name": "asistencia",
+  "version": "1.0.0",
+  "description": "backend control de asistencia",
+  "license": "ISC",
+  "author": "alejandro perez",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
