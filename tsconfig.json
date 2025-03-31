@@ -1,0 +1,25 @@
+{
+    "$schema": "https://json.schemastore.org/tsconfig",
+    "display": "Node 22",
+    "_version": "22.0.0",
+  
+    "compilerOptions": {
+      "lib": ["es2023"],
+      "module": "nodenext",
+      "target": "es2022",
+
+      "typeRoots": ["./node_modules/@types"],
+      "types": ["node"],
+      "sourceMap": true,
+      "outDir": "./dist", 
+      "rootDir": "./src",
+      "forceConsistentCasingInFileNames": true,
+
+      "strict": true,
+      "esModuleInterop": true,
+      "skipLibCheck": true,
+      "moduleResolution": "node16"
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts", "dist", "build"]
+  }
