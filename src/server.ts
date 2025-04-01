@@ -1,6 +1,5 @@
 import express, { Application } from "express";
 import usrRoutes from "./routes/usuario.routes";
-import personaRoutes from "./routes/persona.routes";
 import cors from "cors";
 import db from "./db/dbConnection";
 import config from "./config";
