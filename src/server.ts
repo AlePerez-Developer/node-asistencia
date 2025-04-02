@@ -1,19 +1,22 @@
 import express, { Application } from "express";
-import usrRoutes from "./routes/usuario.routes";
+import asistenciaRoutes from "./routes/asistencia.routes";
 import cors from "cors";
-import db from "./db/dbConnection";
+import dbConnections from "./db/dbConnection";
 import config from "./config";
 
 class Server {
   private app: Application;
   private port: string;
+
   private apiPath = {
-    usuarios: "/api/usr",
+    asistencia: "/api/asistencia",
   };
 
   constructor() {
     this.app = express();
     this.port = config.appPort.toString();
+
+    new dbConnections();
 
     this.dbConnection();
     this.middlewares();
@@ -22,8 +25,18 @@ class Server {
 
   async dbConnection() {
     try {
-      await db.authenticate();
-      console.log("db online");
+      await dbConnections.conexionRRHH.authenticate();
+      console.log("db RRHH online");
+    } catch (error) {
+      let message;
+      if (error instanceof Error) message = error.message;
+      else message = String(error);
+      console.log(message);
+    }
+
+    try {
+      await dbConnections.conexionRAB.authenticate();
+      console.log("db RAB online");
     } catch (error) {
       let message;
       if (error instanceof Error) message = error.message;
@@ -44,7 +57,7 @@ class Server {
   }
 
   routes() {
-    this.app.use(this.apiPath.usuarios, usrRoutes);
+    this.app.use(this.apiPath.asistencia, asistenciaRoutes);
   }
 
   listen() {
