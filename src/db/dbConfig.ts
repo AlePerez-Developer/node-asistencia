@@ -35,6 +35,24 @@ class dbConfig {
       Object.assign(this, { dbUser, dbPassword, dbServer, dbDatabase, dbPort });
     }
   };
+
+  static dbConfigACAD = class {
+    public dbUser!: string;
+    public dbPassword!: string;
+    public dbServer!: string;
+    public dbDatabase!: string;
+    public dbPort!: number;
+    constructor() {
+      const {
+        username: dbUser,
+        password: dbPassword,
+        host: dbServer,
+        database: dbDatabase,
+        port: dbPort,
+      } = config.getACADDatabaseConfig();
+      Object.assign(this, { dbUser, dbPassword, dbServer, dbDatabase, dbPort });
+    }
+  };
 }
 
 export default dbConfig;

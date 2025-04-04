@@ -4,8 +4,10 @@ import asistenciaController from "../controllers/asistenciaController";
 
 const router = Router();
 
-router.post("/registrar/", asistenciaController.registerEvent);
+router.post("/registroBIO/", asistenciaController.registerEventBIO);
 
-router.get("/gettest/", asistenciaController.test);
+router.post("/registroGEO/", asistenciaController.registerEventGEO);
+
+router.get("/test/", asistenciaController.test);
 
 export default router;

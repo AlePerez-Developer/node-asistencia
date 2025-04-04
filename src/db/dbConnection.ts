@@ -3,10 +3,12 @@ import dbConfig from "./dbConfig";
 
 const dbConfigRRHH = new dbConfig.dbConfigRRHH();
 const dbConfigRAB = new dbConfig.dbConfigRAB();
+const dbConfigACAD = new dbConfig.dbConfigACAD();
 
 class dbConnection {
   static conexionRRHH: Sequelize;
   static conexionRAB: Sequelize;
+  static conexionACAD: Sequelize;
 
   constructor() {
     dbConnection.conexionRRHH = new Sequelize(
@@ -24,7 +26,7 @@ class dbConnection {
           },
         },
         models: [__dirname + "/models"],
-        logging: true,
+        logging: false,
       }
     );
 
@@ -35,6 +37,25 @@ class dbConnection {
       {
         host: dbConfigRAB.dbServer,
         port: dbConfigRAB.dbPort,
+        dialect: "mssql",
+        dialectOptions: {
+          options: {
+            encrypt: false,
+            trustservercertificate: true,
+          },
+        },
+        models: [__dirname + "/models"],
+        logging: false,
+      }
+    );
+
+    dbConnection.conexionACAD = new Sequelize(
+      dbConfigACAD.dbDatabase,
+      dbConfigACAD.dbUser,
+      dbConfigACAD.dbPassword,
+      {
+        host: dbConfigACAD.dbServer,
+        port: dbConfigACAD.dbPort,
         dialect: "mssql",
         dialectOptions: {
           options: {

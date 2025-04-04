@@ -43,6 +43,16 @@ class Server {
       else message = String(error);
       console.log(message);
     }
+
+    try {
+      await dbConnections.conexionACAD.authenticate();
+      console.log("db ACAD online");
+    } catch (error) {
+      let message;
+      if (error instanceof Error) message = error.message;
+      else message = String(error);
+      console.log(message);
+    }
   }
 
   middlewares() {
