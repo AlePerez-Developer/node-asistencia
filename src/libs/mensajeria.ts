@@ -18,7 +18,6 @@ class mensajeria {
   }
 
   async enviarMensaje() {
-    console.log("asdasd", config.mensajeria_url);
     const headers = {
       "x-api-key": config.mensajeria_key,
       "Content-Type": "application/json",
@@ -30,7 +29,6 @@ class mensajeria {
       mensaje: this.mensaje,
       codigoMensaje: config.mensajeria_codigo,
     };
-    console.log(config.mensajeria_url);
     try {
       const response = await axios.post(config.mensajeria_url, datos, {
         headers,

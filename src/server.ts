@@ -1,8 +1,9 @@
 import express, { Application } from "express";
 import asistenciaRoutes from "./routes/asistencia.routes";
 import cors from "cors";
-import dbConnections from "./db/dbConnection";
-import config from "./config";
+
+import app_config from "./config/app.config";
+import { initDatabases, rrhh_conn, acad_conn, rab_conn } from "./db";
 
 class Server {
   private app: Application;
@@ -14,9 +15,15 @@ class Server {
 
   constructor() {
     this.app = express();
-    this.port = config.appPort.toString();
+    this.port = app_config.appPort.toString();
 
-    new dbConnections();
+    /*
+    try {
+      this.initDb();
+      console.log("Aplicación lista 🔥");
+    } catch (error) {
+      console.error("Error al iniciar las bases de datos:", error);
+    }*/
 
     this.dbConnection();
     this.middlewares();
@@ -25,7 +32,7 @@ class Server {
 
   async dbConnection() {
     try {
-      await dbConnections.conexionRRHH.authenticate();
+      await rrhh_conn.authenticate();
       console.log("db RRHH online");
     } catch (error) {
       let message;
@@ -35,7 +42,7 @@ class Server {
     }
 
     try {
-      await dbConnections.conexionRAB.authenticate();
+      await rab_conn.authenticate();
       console.log("db RAB online");
     } catch (error) {
       let message;
@@ -45,7 +52,7 @@ class Server {
     }
 
     try {
-      await dbConnections.conexionACAD.authenticate();
+      await acad_conn.authenticate();
       console.log("db ACAD online");
     } catch (error) {
       let message;

@@ -1,4 +1,3 @@
-import dbConnections from "../db/dbConnection";
 import { QueryTypes } from "sequelize";
 
 class Persona {
@@ -41,7 +40,7 @@ class Persona {
   }
 
   static async getNombrePersona(idPersona: string): Promise<string> {
-    try {
+    /*try {
       const qryRta = await dbConnections.conexionRRHH.query(
         "select Ltrim(Rtrim(isnull(Paterno,''))) + ' ' + Ltrim(Rtrim(isnull(Materno,''))) + ' ' + Ltrim(Rtrim(isnull(Nombres, '')))  as nombreCompleto from personas where idpersona = :idpersona",
         {
@@ -59,11 +58,12 @@ class Persona {
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
       return "";
-    }
+    }*/
+    return "";
   }
 
   static async getTelefono(idPersona: string): Promise<string> {
-    try {
+    /*try {
       const qryRta = await dbConnections.conexionACAD.query(
         "select LTrim(Rtrim(isnull(Celular,''))) as Celular from usuarios where IdPersona = :idpersona and TieneWhatsApp = 1",
         {
@@ -82,11 +82,12 @@ class Persona {
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
       return "";
-    }
+    }*/
+    return "";
   }
 
   static async getIdSitio(dispositivo: string): Promise<string> {
-    try {
+    /*try {
       const qryRta = await dbConnections.conexionRRHH.query(
         "select idSitio from DispositivosControlAsistencia where IdDispositivo = :dispositivo",
         {
@@ -98,21 +99,22 @@ class Persona {
       );
 
       if (!qryRta) {
-        return "";
+        return "0";
       }
 
       return JSON.parse(JSON.stringify(qryRta)).idSitio;
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
-      return "";
-    }
+      return "0";
+    }*/
+    return "";
   }
 
   static async getTipoFuncionario(
     idPersona: string,
     idSitio: string
   ): Promise<string> {
-    try {
+    /*try {
       const qryRta = await dbConnections.conexionRAB.query(
         "select TipoFuncionario from FuncionariosPuntosControl where idpersona = :idpersona and PuntoAutorizado = :idsitio ",
         {
@@ -124,14 +126,15 @@ class Persona {
       );
 
       if (!qryRta) {
-        return "";
+        return "DOC";
       }
 
       return JSON.parse(JSON.stringify(qryRta)).TipoFuncionario;
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
-      return "";
-    }
+      return "DOC";
+    }*/
+    return "";
   }
 }
 
