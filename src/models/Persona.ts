@@ -1,4 +1,5 @@
 import { QueryTypes } from "sequelize";
+import { acad_conn, rab_conn, rrhh_conn } from "../db";
 
 class Persona {
   public idPersona: string;
@@ -40,8 +41,8 @@ class Persona {
   }
 
   static async getNombrePersona(idPersona: string): Promise<string> {
-    /*try {
-      const qryRta = await dbConnections.conexionRRHH.query(
+    try {
+      const qryRta = await rrhh_conn.query(
         "select Ltrim(Rtrim(isnull(Paterno,''))) + ' ' + Ltrim(Rtrim(isnull(Materno,''))) + ' ' + Ltrim(Rtrim(isnull(Nombres, '')))  as nombreCompleto from personas where idpersona = :idpersona",
         {
           replacements: { idpersona: idPersona },
@@ -58,13 +59,13 @@ class Persona {
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
       return "";
-    }*/
+    }
     return "";
   }
 
   static async getTelefono(idPersona: string): Promise<string> {
-    /*try {
-      const qryRta = await dbConnections.conexionACAD.query(
+    try {
+      const qryRta = await acad_conn.query(
         "select LTrim(Rtrim(isnull(Celular,''))) as Celular from usuarios where IdPersona = :idpersona and TieneWhatsApp = 1",
         {
           replacements: { idpersona: idPersona },
@@ -82,13 +83,13 @@ class Persona {
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
       return "";
-    }*/
+    }
     return "";
   }
 
   static async getIdSitio(dispositivo: string): Promise<string> {
-    /*try {
-      const qryRta = await dbConnections.conexionRRHH.query(
+    try {
+      const qryRta = await rrhh_conn.query(
         "select idSitio from DispositivosControlAsistencia where IdDispositivo = :dispositivo",
         {
           replacements: { dispositivo: dispositivo },
@@ -106,7 +107,7 @@ class Persona {
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
       return "0";
-    }*/
+    }
     return "";
   }
 
@@ -114,8 +115,8 @@ class Persona {
     idPersona: string,
     idSitio: string
   ): Promise<string> {
-    /*try {
-      const qryRta = await dbConnections.conexionRAB.query(
+    try {
+      const qryRta = await rab_conn.query(
         "select TipoFuncionario from FuncionariosPuntosControl where idpersona = :idpersona and PuntoAutorizado = :idsitio ",
         {
           replacements: { idpersona: idPersona, idsitio: idSitio },
@@ -133,7 +134,7 @@ class Persona {
     } catch (error) {
       console.error("Error al ejecutar el procedimiento almacenado:", error);
       return "DOC";
-    }*/
+    }
     return "";
   }
 }

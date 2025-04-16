@@ -8,4 +8,6 @@ router.post("/registroBIO/", asistenciaController.registerEventBIO);
 
 router.post("/registroGEO/", asistenciaController.registerEventGEO);
 
+router.get("/test", asistenciaController.getStatus);
+
 export default router;
