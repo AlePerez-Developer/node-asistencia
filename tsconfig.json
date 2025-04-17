@@ -22,9 +22,7 @@
     "resolveJsonModule": true,
     "outDir": "./dist",
     "rootDir": "./src",
-    "noEmit": true,
     "types": ["node"],
-    "allowImportingTsExtensions": true,
     "incremental": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true

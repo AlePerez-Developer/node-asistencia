@@ -157,6 +157,8 @@ class asistenciaController {
     const { idpersona, fechahora, dispositivo } = req.body;
     const { body } = req;
 
+    console.log(body);
+
     const persona = await Persona.crearPersona(idpersona.trim(), dispositivo);
     const fecha = parseFechas.parseFechaHora(fechahora);
 
@@ -177,7 +179,7 @@ class asistenciaController {
     registro.TipoFuncionario = persona.tipoFuncionario;
     registro.IdDispositivo = dispositivo;
     registro.EnLinea = 1;
-    registro.CodigoProcesado = "";
+    registro.CodigoProcesado = null;
 
     await registro
       .validate()
@@ -227,6 +229,7 @@ class asistenciaController {
         console.log("mensaje enviado");
       }
 
+      //console.log(persona);
       return void res.status(200).json({
         msg: "procesado correcto",
       });

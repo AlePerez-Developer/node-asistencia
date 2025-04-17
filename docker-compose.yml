@@ -1,0 +1,19 @@
+services:
+  asistencia:
+    image: node-asistencia
+    container_name: node-asistencia
+    build:
+      context: .
+    command: sh -c "npm start"
+    ports:
+      - 3333:3333
+    networks:
+      - redasistencia
+
+networks:
+  redasistencia:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "192.168.31.0/24"
+          gateway: "192.168.31.1"

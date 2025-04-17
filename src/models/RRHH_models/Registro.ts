@@ -92,12 +92,7 @@ export default class Registro extends Model<
 
   @Column({
     type: DataType.STRING,
-    allowNull: false,
-    validate: {
-      notNull: {
-        msg: "Debe ingresar un valor para el campo CodigoProcesado",
-      },
-    },
+    allowNull: true,
   })
-  declare CodigoProcesado: string;
+  declare CodigoProcesado: string | null;
 }
