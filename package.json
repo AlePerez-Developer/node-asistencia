@@ -6,7 +6,7 @@
   "author": "alejandro perez",
   "main": "index.js",
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc",
+    "build": "tsc",
     "dev": "nodemon",
     "start": "node dist/app.js",
     "test": "jest",

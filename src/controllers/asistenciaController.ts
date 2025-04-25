@@ -1,13 +1,11 @@
-import { Request, Response } from "express";
-
+import e, { Request, Response } from "express";
 import { QueryTypes } from "sequelize";
 import mensajeria from "../libs/mensajeria";
 import Persona from "../models/Persona";
 import parseFechas from "../libs/parseFechas";
 import Registro from "../models/RRHH_models/Registro";
-import { rab_conn, rrhh_conn } from "../db";
-import { exit } from "process";
-import { string } from "zod";
+import { acad_conn, rab_conn, rrhh_conn } from "../db";
+import { validationResult } from "express-validator";
 
 interface PostData {
   aplicacion: string;
@@ -30,60 +28,35 @@ type ProcesadoDTO = {
 };
 
 class asistenciaController {
-  static test = async (req: Request, res: Response): Promise<void> => {};
-
   static getStatus = async (req: Request, res: Response) => {
-    const { fechahora } = req.body;
-    const { body } = req;
-    const persona = await Persona.crearPersona("5493446", "88");
-    console.log("final", persona);
+    let rrhhStatus, rabStatus, acadStatus: boolean;
 
-    const fecha = parseFechas.parseFechaHora(fechahora);
-
-    if (!fecha) {
-      res.status(400).json({
-        msg: "Error en el formato de fecha",
-      });
-      exit();
+    try {
+      await rrhh_conn.authenticate();
+      rrhhStatus = true;
+    } catch (error) {
+      rrhhStatus = false;
     }
 
-    const registro = Registro.build(body);
-    registro.idPersona = persona.idPersona;
-    registro.FechaHora =
-      fecha?.anio +
-      "-" +
-      fecha?.mes +
-      "-" +
-      fecha?.dia +
-      " " +
-      fecha?.hora +
-      ":" +
-      fecha?.minutos +
-      ":" +
-      fecha?.segundos;
-    registro.TipoFuncionario = persona.tipoFuncionario;
-    registro.IdDispositivo = 88;
-    registro.EnLinea = 1;
-    registro.CodigoProcesado = "";
+    try {
+      await rab_conn.authenticate();
+      rabStatus = true;
+    } catch (error) {
+      rabStatus = false;
+    }
 
-    await registro
-      .validate()
-      .then(async () => {
-        await registro.save();
-        return res.status(200).json({
-          msg: `La cama ${registro.id} se agrego correctamente`,
-        });
-      })
-      .catch((error) => {
-        return res.status(400).json({
-          msg: error.message,
-        });
-      });
+    try {
+      await acad_conn.authenticate();
+      acadStatus = true;
+    } catch (error) {
+      acadStatus = false;
+    }
 
-    const nuevoId = (registro as Registro).id;
-    console.log("nuevoId", nuevoId);
-    res.status(200).json({
-      msg: "ok",
+    return void res.status(200).json({
+      status: "alive",
+      dbrrhh: rrhhStatus,
+      dbrab: rabStatus,
+      dbacad: acadStatus,
     });
   };
 
@@ -92,6 +65,7 @@ class asistenciaController {
     res: Response
   ): Promise<void> => {
     const { idpersona, fechahora, idedificio } = req.body;
+    console.log(idpersona);
     let dispositivo = "";
 
     try {
@@ -145,7 +119,7 @@ class asistenciaController {
       });
     }
 
-    return void res.status(404).json({
+    return void res.status(200).json({
       msg: "acceso correcto",
     });
   };
@@ -154,28 +128,58 @@ class asistenciaController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    const { idpersona, fechahora, dispositivo } = req.body;
-    const { body } = req;
+    const validation = validationResult(req);
+    if (!validation.isEmpty()) {
+      console.log("error de validacion", validation.array());
+      return void res.status(400).json({ error: validation.array() });
+    }
 
-    console.log(body);
+    const { idpersona, fechahora, dispositivo } = req.body;
 
     const persona = await Persona.crearPersona(idpersona.trim(), dispositivo);
-    const fecha = parseFechas.parseFechaHora(fechahora);
+    const fechaTmp = parseFechas.parseFechaHora(fechahora);
 
-    const registro = Registro.build(body);
-    registro.idPersona = persona.idPersona;
-    registro.FechaHora =
-      fecha?.anio +
+    const _fechahora =
+      fechaTmp?.anio +
       "-" +
-      fecha?.mes +
+      fechaTmp?.mes +
       "-" +
-      fecha?.dia +
+      fechaTmp?.dia +
       " " +
-      fecha?.hora +
+      fechaTmp?.hora +
       ":" +
-      fecha?.minutos +
+      fechaTmp?.minutos +
       ":" +
-      fecha?.segundos;
+      fechaTmp?.segundos;
+
+    try {
+      const exists = await Registro.findOne({
+        where: {
+          idPersona: persona.idPersona,
+          FechaHora: _fechahora,
+          TipoFuncionario: persona.tipoFuncionario,
+          IdDispositivo: dispositivo,
+        },
+      });
+
+      if (exists) {
+        return void res.status(400).json({ msg: "ya existe un registro" });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return void res.status(404).json({
+          msg: error.message,
+        });
+      } else {
+        return void res.status(404).json({
+          msg: error,
+        });
+      }
+    }
+
+    const registro = Registro.build();
+    registro.idPersona = persona.idPersona;
+    registro.FechaHora = _fechahora;
     registro.TipoFuncionario = persona.tipoFuncionario;
     registro.IdDispositivo = dispositivo;
     registro.EnLinea = 1;
@@ -187,7 +191,9 @@ class asistenciaController {
         await registro.save();
       })
       .catch((error) => {
-        return res.status(400).json({
+        console.log("error al crear el registro", error.message);
+        return res.status(500).json({
+          descripcion: "error al crear el registro",
           msg: error.message,
         });
       });
@@ -211,7 +217,7 @@ class asistenciaController {
       );
 
       if (!result) {
-        console.log("error procesado de datos");
+        console.log("error procesado de datos", result);
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
@@ -224,24 +230,24 @@ class asistenciaController {
 
       const mensaje = new mensajeria("+59176128920", msgText);
 
-      if (result.Procesado) {
+      if (result.Procesado && persona.telefono) {
         //mensaje.enviarMensaje();
-        console.log("mensaje enviado");
+        console.log("mensaje enviado", persona.telefono);
       }
 
-      //console.log(persona);
+      console.log("procesado correcto", persona.idPersona);
       return void res.status(200).json({
         msg: "procesado correcto",
       });
     } catch (error) {
       if (error instanceof Error) {
-        res.status(404).json({
+        return void res.status(404).json({
           msg: error.message,
         });
-        console.error("Error ejecutando SP:", error.message);
-        console.error("Stack trace:", error.stack);
       } else {
-        console.error("Error inesperado:", error);
+        return void res.status(404).json({
+          msg: error,
+        });
       }
     }
   };

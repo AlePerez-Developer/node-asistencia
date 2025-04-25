@@ -2,6 +2,7 @@ import { Sequelize } from "sequelize-typescript";
 import databaseConfig from "../config/database.config";
 import { Dialect } from "sequelize";
 import path from "path";
+import { Registro } from "../models/RAB_models/Registro";
 
 export const rab_conn = new Sequelize(
   databaseConfig.RAB_db.database,
@@ -18,7 +19,7 @@ export const rab_conn = new Sequelize(
         trustservercertificate: true,
       },
     },
-    models: [path.resolve(__dirname, "../models/RAB_models")],
+    models: [Registro],
     logging: false,
   }
 );
