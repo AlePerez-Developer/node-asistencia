@@ -228,10 +228,10 @@ class asistenciaController {
                        Materia: ${result.SiglaMateria} (${result.Grupo}) ${result.TipoGrupoMateria}\n 
                        cm: ${result.Cm}`;
 
-      const mensaje = new mensajeria("+59176128920", msgText);
+      const mensaje = new mensajeria(persona.telefono, msgText);
 
       if (result.Procesado && persona.telefono) {
-        //mensaje.enviarMensaje();
+        mensaje.enviarMensaje();
         console.log("mensaje enviado", persona.telefono);
       }
 
