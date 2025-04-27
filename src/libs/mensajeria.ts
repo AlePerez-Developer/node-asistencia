@@ -1,5 +1,5 @@
 import axios from "axios";
-import config from "../config";
+import app_config from "../config/app.config";
 
 interface PostData {
   aplicacion: string;
@@ -19,18 +19,19 @@ class mensajeria {
 
   async enviarMensaje() {
     const headers = {
-      "x-api-key": config.mensajeria_key,
+      "x-api-key": app_config.mensajeria_key,
       "Content-Type": "application/json",
     };
 
     const datos: PostData = {
-      aplicacion: config.mensajeria_app,
+      aplicacion: app_config.mensajeria_app,
       telefono: this.telefono,
       mensaje: this.mensaje,
-      codigoMensaje: config.mensajeria_codigo,
+      codigoMensaje: app_config.mensajeria_codigo,
     };
     try {
-      const response = await axios.post(config.mensajeria_url, datos, {
+      console.log("mensajeria url:", app_config.mensajeria_url);
+      const response = await axios.post(app_config.mensajeria_url, datos, {
         headers,
       });
       console.log("Respuesta del servidor:", response.data);
