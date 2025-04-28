@@ -230,7 +230,11 @@ class asistenciaController {
 
       const mensaje = new mensajeria(persona.telefono, msgText);
 
-      if (result.Procesado && persona.telefono) {
+      if (
+        result.Procesado &&
+        persona.telefono &&
+        persona.tipoFuncionario !== "ADM"
+      ) {
         mensaje.enviarMensaje(result.Cm);
         console.log("mensaje enviado", persona.telefono);
       }
