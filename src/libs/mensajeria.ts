@@ -17,7 +17,7 @@ class mensajeria {
     this.mensaje = mensaje;
   }
 
-  async enviarMensaje() {
+  async enviarMensaje(codigoMensaje: string) {
     const headers = {
       "x-api-key": app_config.mensajeria_key,
       "Content-Type": "application/json",
@@ -27,7 +27,7 @@ class mensajeria {
       aplicacion: app_config.mensajeria_app,
       telefono: this.telefono,
       mensaje: this.mensaje,
-      codigoMensaje: app_config.mensajeria_codigo,
+      codigoMensaje: codigoMensaje,
     };
     try {
       console.log("mensajeria url:", app_config.mensajeria_url);

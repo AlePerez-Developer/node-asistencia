@@ -221,17 +221,17 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
-      const msgText = `Estimado(a) ${result.NombreCompleto}\n 
-                       Se registró su ${result.TipoRegistro}\n 
-                       En: ${result.NombreEdificio}\n 
-                       En fecha: ${result.HoraSellado}\n 
-                       Materia: ${result.SiglaMateria} (${result.Grupo}) ${result.TipoGrupoMateria}\n 
+      const msgText = `Estimado(a) ${result.NombreCompleto} 
+                       Se registró su ${result.TipoRegistro} 
+                       En: ${result.NombreEdificio} 
+                       En fecha: ${result.HoraSellado} 
+                       Materia: ${result.SiglaMateria} (${result.Grupo}) ${result.TipoGrupoMateria} 
                        cm: ${result.Cm}`;
 
       const mensaje = new mensajeria(persona.telefono, msgText);
 
       if (result.Procesado && persona.telefono) {
-        mensaje.enviarMensaje();
+        mensaje.enviarMensaje(result.Cm);
         console.log("mensaje enviado", persona.telefono);
       }
 
