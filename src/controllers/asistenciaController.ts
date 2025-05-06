@@ -6,26 +6,7 @@ import parseFechas from "../libs/parseFechas";
 import Registro from "../models/RRHH_models/Registro";
 import { acad_conn, rab_conn, rrhh_conn } from "../db";
 import { validationResult } from "express-validator";
-
-interface PostData {
-  aplicacion: string;
-  telefono: string;
-  mensaje: string;
-  codigoMensaje: string;
-}
-
-type ProcesadoDTO = {
-  Procesado: number;
-  IdPersona: string;
-  TipoRegistro: string;
-  NombreCompleto: string;
-  NombreEdificio: string;
-  HoraSellado: string;
-  SiglaMateria: string;
-  Grupo: string;
-  TipoGrupoMateria: string;
-  Cm: string;
-};
+import { ProcesadoDTO } from "../dto/sp_procesado.dto";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -64,8 +45,14 @@ class asistenciaController {
     req: Request,
     res: Response
   ): Promise<void> => {
+    const validation = validationResult(req);
+    if (!validation.isEmpty()) {
+      console.log("error de validacion", validation.array());
+      return void res.status(400).json({ error: validation.array() });
+    }
+
     const { idpersona, fechahora, idedificio } = req.body;
-    console.log(idpersona);
+
     let dispositivo = "";
 
     try {
@@ -94,34 +81,104 @@ class asistenciaController {
     }
 
     const persona = await Persona.crearPersona(idpersona.trim(), dispositivo);
-    const fecha = parseFechas.parseFechaHora(fechahora);
+    const fechaTmp = parseFechas.parseFechaHora(fechahora);
+
+    const _fechahora =
+      fechaTmp?.anio +
+      "-" +
+      fechaTmp?.mes +
+      "-" +
+      fechaTmp?.dia +
+      " " +
+      fechaTmp?.hora +
+      ":" +
+      fechaTmp?.minutos +
+      ":" +
+      fechaTmp?.segundos;
 
     try {
-      const qryProcesarAsistencia = await rrhh_conn.query(
-        `SET LANGUAGE spanish; 
-       insert into registros values (:idPersona, :fechaHora, :tipoFuncionario, :idDispositivo, :enLinea); 
-       `,
-        {
-          replacements: {
-            idPersona: persona.idPersona,
-            fechaHora: fechahora,
-            tipoFuncionario: persona.tipoFuncionario,
-            idDispositivo: dispositivo,
-            enLinea: "1",
-          },
-          type: QueryTypes.RAW,
-        }
-      );
-    } catch (error) {
-      console.error("Error al registrar el registro:", error);
-      return void res.status(404).json({
-        msg: error,
+      const exists = await Registro.findOne({
+        where: {
+          idPersona: persona.idPersona,
+          FechaHora: _fechahora,
+          TipoFuncionario: persona.tipoFuncionario,
+          IdDispositivo: dispositivo,
+        },
       });
+
+      if (exists) {
+        return void res.status(400).json({ msg: "ya existe un registro" });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return void res.status(404).json({
+          msg: error.message,
+        });
+      } else {
+        return void res.status(404).json({
+          msg: error,
+        });
+      }
     }
 
-    return void res.status(200).json({
-      msg: "acceso correcto",
-    });
+    const registro = Registro.build();
+    registro.idPersona = persona.idPersona;
+    registro.FechaHora = _fechahora;
+    registro.TipoFuncionario = persona.tipoFuncionario;
+    registro.IdDispositivo = parseInt(dispositivo);
+    registro.EnLinea = 1;
+    registro.CodigoProcesado = null;
+
+    await registro
+      .validate()
+      .then(async () => {
+        await registro.save();
+      })
+      .catch((error) => {
+        console.log("error al crear el registro", error.message);
+        return res.status(500).json({
+          descripcion: "error al crear el registro",
+          msg: error.message,
+        });
+      });
+
+    try {
+      const result = await rrhh_conn.query<ProcesadoDTO>(
+        `SET LANGUAGE spanish; 
+       EXECUTE procesarAsistenciaLyli @idpersona = :idpersona, @horaSellado = :fechahora, @iddispositivo = :dispositivo, @idregistro = :idregisto, @mostrarMensaje = :mostrarMensaje;`,
+        {
+          replacements: {
+            idpersona: persona.idPersona,
+            fechahora: fechahora,
+            dispositivo: dispositivo,
+            idregisto: registro.id,
+            mostrarMensaje: 1,
+          },
+          type: QueryTypes.SELECT,
+          plain: false,
+          raw: true,
+        }
+      );
+
+      if (!result) {
+        console.log("error procesado de datos", result);
+        return void res.status(400).json({ msg: "error procesado de datos" });
+      }
+
+      return void res.status(200).json({
+        msg: "acceso correcto",
+      });
+    } catch (error) {
+      if (error instanceof Error) {
+        return void res.status(404).json({
+          msg: error.message,
+        });
+      } else {
+        return void res.status(404).json({
+          msg: error,
+        });
+      }
+    }
   };
 
   static registerEventBIO = async (
@@ -199,7 +256,7 @@ class asistenciaController {
       });
 
     try {
-      const result = await rrhh_conn.query<ProcesadoDTO>(
+      const result = await rrhh_conn.query<ProcesadoDTO[]>(
         `SET LANGUAGE spanish; 
        EXECUTE procesarAsistenciaLyli @idpersona = :idpersona, @horaSellado = :fechahora, @iddispositivo = :dispositivo, @idregistro = :idregisto, @mostrarMensaje = :mostrarMensaje;`,
         {
@@ -211,7 +268,6 @@ class asistenciaController {
             mostrarMensaje: 1,
           },
           type: QueryTypes.SELECT,
-          plain: true,
           raw: true,
         }
       );
@@ -221,22 +277,21 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
-      const msgText = `Estimado(a) ${result.NombreCompleto}
-      Se registró su ${result.TipoRegistro}
-      En: ${result.NombreEdificio}
-      En fecha: ${result.HoraSellado}
-      Materia: ${result.SiglaMateria} (${result.Grupo}) ${result.TipoGrupoMateria}
-      cm: ${result.Cm}`;
+      if (persona.tipoFuncionario !== "ADM") {
+        const resultSet = result[0] || [];
+        resultSet.forEach((row: ProcesadoDTO) => {
+          if (row.Procesado && persona.telefono) {
+            const msgText = `Estimado(a) ${row.NombreCompleto} 
+            Se registró su ${row.TipoRegistro}
+            En: ${row.NombreEdificio}
+            En fecha: ${row.HoraSellado}
+            Materia: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}
+            cm: ${row.Cm}`;
 
-      const mensaje = new mensajeria(persona.telefono, msgText);
-
-      if (
-        result.Procesado &&
-        persona.telefono &&
-        persona.tipoFuncionario !== "ADM"
-      ) {
-        mensaje.enviarMensaje(result.Cm);
-        console.log("mensaje enviado", persona.telefono);
+            const mensaje = new mensajeria(persona.telefono, msgText);
+            mensaje.enviarMensaje(row.Cm);
+          }
+        });
       }
 
       console.log("procesado correcto", persona.idPersona);
@@ -254,6 +309,19 @@ class asistenciaController {
         });
       }
     }
+  };
+
+  static estadoBiometrico = async (
+    req: Request,
+    res: Response
+  ): Promise<void> => {
+    const validation = validationResult(req);
+    if (!validation.isEmpty()) {
+      console.log("error de validacion", validation.array());
+      return void res.status(400).json({ error: validation.array() });
+    }
+
+    const { id, estado } = req.body;
   };
 }
 

@@ -15,6 +15,7 @@ import {
 export class Registro extends Model {
   @PrimaryKey
   @AutoIncrement
+  @AllowNull(false)
   @Column(DataType.NUMBER)
   declare id: number;
 

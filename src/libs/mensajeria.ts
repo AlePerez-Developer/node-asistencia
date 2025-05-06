@@ -1,12 +1,6 @@
 import axios from "axios";
 import app_config from "../config/app.config";
-
-interface PostData {
-  aplicacion: string;
-  telefono: string;
-  mensaje: string;
-  codigoMensaje: string;
-}
+import { PostData } from "../dto/whatsApp_postdata.dto";
 
 class mensajeria {
   private telefono: string;
@@ -27,7 +21,7 @@ class mensajeria {
       aplicacion: app_config.mensajeria_app,
       telefono: this.telefono,
       mensaje: this.mensaje,
-      codigoMensaje: codigoMensaje,
+      codigoMensaje: codigoMensaje.toUpperCase(),
     };
     try {
       console.log("mensajeria url:", app_config.mensajeria_url);
