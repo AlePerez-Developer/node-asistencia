@@ -36,10 +36,6 @@ export const registroGEOValidator: Schema = {
     notEmpty: {
       errorMessage: "edificio: Es campo obligatorio",
     },
-    isInt: {
-      errorMessage: "edificio: Se espera un numero",
-    },
-    toInt: true,
     escape: true,
   },
 };
