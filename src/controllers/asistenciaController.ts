@@ -3,10 +3,12 @@ import { QueryTypes } from "sequelize";
 import mensajeria from "../libs/mensajeria";
 import Persona from "../models/Persona";
 import parseFechas from "../libs/parseFechas";
-import Registro from "../models/RRHH_models/Registro";
+import RegistroLyli from "../models/RRHH_models/Registro";
+import RegistroRAB from "../models/RAB_models/Registro";
 import { acad_conn, rab_conn, rrhh_conn } from "../db";
 import { validationResult } from "express-validator";
 import { ProcesadoDTO } from "../dto/sp_procesado.dto";
+import { DataType } from "sequelize-typescript";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -74,7 +76,7 @@ class asistenciaController {
 
       dispositivo = JSON.parse(JSON.stringify(qryRta)).IdDispositivo;
     } catch (error) {
-      console.error("Error al obtener idedificio:", error);
+      console.error("Error al obtener edificio:", error);
       return void res.status(404).json({
         msg: error,
       });
@@ -97,7 +99,7 @@ class asistenciaController {
       fechaTmp?.segundos;
 
     try {
-      const exists = await Registro.findOne({
+      const exists = await RegistroLyli.findOne({
         where: {
           idPersona: persona.idPersona,
           FechaHora: _fechahora,
@@ -121,7 +123,7 @@ class asistenciaController {
       }
     }
 
-    const registro = Registro.build();
+    const registro = RegistroLyli.build();
     registro.idPersona = persona.idPersona;
     registro.FechaHora = _fechahora;
     registro.TipoFuncionario = persona.tipoFuncionario;
@@ -209,54 +211,73 @@ class asistenciaController {
       ":" +
       fechaTmp?.segundos;
 
-    try {
-      const exists = await Registro.findOne({
-        where: {
-          idPersona: persona.idPersona,
-          FechaHora: _fechahora,
-          TipoFuncionario: persona.tipoFuncionario,
-          IdDispositivo: dispositivo,
-        },
-      });
+    const exists = await RegistroLyli.findOne({
+      where: {
+        idPersona: persona.idPersona,
+        FechaHora: _fechahora,
+        TipoFuncionario: persona.tipoFuncionario,
+        IdDispositivo: dispositivo,
+      },
+    });
 
-      if (exists) {
-        return void res.status(400).json({ msg: "ya existe un registro" });
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return void res.status(404).json({
-          msg: error.message,
-        });
-      } else {
-        return void res.status(404).json({
-          msg: error,
-        });
-      }
+    if (exists) {
+      return void res.status(400).json({ msg: "ya existe un registro" });
     }
 
-    const registro = Registro.build();
-    registro.idPersona = persona.idPersona;
-    registro.FechaHora = _fechahora;
-    registro.TipoFuncionario = persona.tipoFuncionario;
-    registro.IdDispositivo = dispositivo;
-    registro.EnLinea = 1;
-    registro.CodigoProcesado = null;
+    const registro = RegistroLyli.build();
+    try {
+      registro.idPersona = persona.idPersona;
+      registro.FechaHora = _fechahora;
+      registro.TipoFuncionario = persona.tipoFuncionario;
+      registro.IdDispositivo = dispositivo;
+      registro.EnLinea = 1;
+      registro.CodigoProcesado = null;
 
-    await registro
-      .validate()
-      .then(async () => {
-        await registro.save();
-      })
-      .catch((error) => {
-        console.log("error al crear el registro", error.message);
-        return res.status(500).json({
-          descripcion: "error al crear el registro",
-          msg: error.message,
-        });
+      await registro.validate();
+      await registro.save();
+    } catch (error) {
+      console.error("Error al crear el registro:", (error as Error).message);
+
+      res.status(500).json({
+        descripcion: "Error al crear el registro",
+        msg: (error as Error).message,
       });
+    }
+
+    const existsRAB = await RegistroRAB.findOne({
+      where: {
+        idPersona: persona.idPersona,
+        FechaHora: _fechahora,
+        TipoFuncionario: persona.tipoFuncionario,
+        IdDispositivo: dispositivo,
+      },
+    });
+
+    if (existsRAB) {
+      return void res.status(400).json({ msg: "ya existe un registroRAB" });
+    }
 
     try {
-      const result = await rrhh_conn.query<ProcesadoDTO[]>(
+      const registroRAB = RegistroRAB.build();
+      registroRAB.idPersona = persona.idPersona;
+      registroRAB.FechaHora = _fechahora;
+      registroRAB.TipoFuncionario = persona.tipoFuncionario;
+      registroRAB.IdDispositivo = dispositivo;
+      registroRAB.enLinea = 1;
+
+      await registroRAB.validate();
+      await registroRAB.save();
+    } catch (error) {
+      console.error("Error al crear el registro:", (error as Error).message);
+
+      res.status(500).json({
+        descripcion: "Error al crear el registro",
+        msg: (error as Error).message,
+      });
+    }
+
+    try {
+      const result = await rrhh_conn.query<ProcesadoDTO>(
         `SET LANGUAGE spanish; 
        EXECUTE procesarAsistenciaLyli @idpersona = :idpersona, @horaSellado = :fechahora, @iddispositivo = :dispositivo, @idregistro = :idregisto, @mostrarMensaje = :mostrarMensaje;`,
         {
@@ -268,6 +289,7 @@ class asistenciaController {
             mostrarMensaje: 1,
           },
           type: QueryTypes.SELECT,
+          plain: true,
           raw: true,
         }
       );
@@ -277,23 +299,13 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
-      if (persona.tipoFuncionario !== "ADM") {
-        const resultSet = result[0] || [];
-        console.log("resultSet", resultSet);
-        resultSet.forEach((row: ProcesadoDTO) => {
-          console.log("row", row);
-          if (row.Procesado && persona.telefono) {
-            const msgText = `Estimado(a) ${row.NombreCompleto} 
-            Se registró su ${row.TipoRegistro}
-            En: ${row.NombreEdificio}
-            En fecha: ${row.HoraSellado}
-            Materia: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}
-            cm: ${row.Cm}`;
+      const msgText = `Estimado(a) ${result.NombreCompleto}\nSe registró su ${result.TipoRegistro}\nEn: ${result.NombreEdificio}\nEn fecha: ${result.HoraSellado}\nMateria: ${result.SiglaMateria} (${result.Grupo}) ${result.TipoGrupoMateria}\ncm: ${result.Cm}`;
 
-            const mensaje = new mensajeria(persona.telefono, msgText);
-            mensaje.enviarMensaje(row.Cm);
-          }
-        });
+      const mensaje = new mensajeria(persona.telefono, msgText);
+
+      if (result.Procesado && persona.telefono) {
+        mensaje.enviarMensaje(result.Cm);
+        console.log("mensaje enviado", persona.telefono);
       }
 
       console.log("procesado correcto", persona.idPersona);

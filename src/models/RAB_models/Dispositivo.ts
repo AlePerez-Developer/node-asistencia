@@ -14,41 +14,41 @@ import {
   tableName: "Dispositivos",
   timestamps: false,
 })
-export class Dispositivo extends Model {
+export default class Dispositivo extends Model {
   @PrimaryKey
   @AllowNull(false)
   @Column(DataType.INTEGER)
   declare IdDispositivo: number;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare IPAddress: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare Descripcion: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare NumeroSerie: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare Estado: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare idEdificio: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare ciEncargado: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare nombreEncargado: string;
 
-  @Column(DataType.STRING)
   @AllowNull(true)
+  @Column(DataType.STRING)
   declare telfonoEncargado: string;
 }

@@ -9,4 +9,5 @@ export interface ProcesadoDTO {
   Grupo: string;
   TipoGrupoMateria: string;
   Cm: string;
+  SalidaSellado: string;
 }

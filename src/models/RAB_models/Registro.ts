@@ -9,10 +9,10 @@ import {
 } from "sequelize-typescript";
 
 @Table({
-  tableName: "Registro",
+  tableName: "Registros",
   timestamps: false,
 })
-export class Registro extends Model {
+export default class Registro extends Model {
   @PrimaryKey
   @AutoIncrement
   @AllowNull(false)
@@ -22,4 +22,20 @@ export class Registro extends Model {
   @AllowNull(false)
   @Column(DataType.STRING)
   declare idPersona: string;
+
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  declare FechaHora: string;
+
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  declare TipoFuncionario: string;
+
+  @AllowNull(false)
+  @Column(DataType.NUMBER)
+  declare IdDispositivo: number;
+
+  @AllowNull(false)
+  @Column(DataType.NUMBER)
+  declare enLinea: number;
 }
