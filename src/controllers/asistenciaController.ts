@@ -277,9 +277,12 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
+      console.log("tipo funcionario out", persona.tipoFuncionario);
       if (persona.tipoFuncionario !== "ADM") {
+        console.log("tipo funcionario in", persona.tipoFuncionario);
         const resultSet = result[0] || [];
         resultSet.forEach((row: ProcesadoDTO) => {
+          console.log("row", row);
           if (row.Procesado && persona.telefono) {
             const msgText = `Estimado(a) ${row.NombreCompleto} 
             Se registró su ${row.TipoRegistro}
