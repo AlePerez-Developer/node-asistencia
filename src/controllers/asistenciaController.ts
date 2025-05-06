@@ -51,7 +51,7 @@ class asistenciaController {
       return void res.status(400).json({ error: validation.array() });
     }
 
-    const { idpersona, fechahora, idedificio } = req.body;
+    const { idpersona, fechahora, edificio } = req.body;
 
     let dispositivo = "";
 
@@ -59,7 +59,7 @@ class asistenciaController {
       const qryRta = await rab_conn.query(
         "select IdDispositivo from Dispositivos where idEdificio = :edificio and Estado = 'V'",
         {
-          replacements: { edificio: idedificio },
+          replacements: { edificio: edificio },
           type: QueryTypes.SELECT,
           plain: true,
           raw: true,
@@ -277,10 +277,9 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
-      console.log("tipo funcionario out", persona.tipoFuncionario);
       if (persona.tipoFuncionario !== "ADM") {
-        console.log("tipo funcionario in", persona.tipoFuncionario);
         const resultSet = result[0] || [];
+        console.log("resultSet", resultSet);
         resultSet.forEach((row: ProcesadoDTO) => {
           console.log("row", row);
           if (row.Procesado && persona.telefono) {
