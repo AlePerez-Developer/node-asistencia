@@ -9,11 +9,25 @@ import {
   Table,
 } from "sequelize-typescript";
 
+interface RegistroAttributes {
+  id: number;
+  idPersona: string;
+  FechaHora: string;
+  TipoFuncionario: string;
+  IdDispositivo: number;
+  enLinea: number;
+}
+
+type RegistroCreationAttributes = Optional<RegistroAttributes, "id">;
+
 @Table({
   tableName: "Registros",
   timestamps: false,
 })
-export default class RegistroRRHH extends Model {
+export default class RegistroRRHH extends Model<
+  RegistroAttributes,
+  RegistroCreationAttributes
+> {
   @PrimaryKey
   @AutoIncrement
   @AllowNull(false)
