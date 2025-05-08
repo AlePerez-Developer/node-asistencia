@@ -1,7 +1,7 @@
 import { Schema } from "express-validator";
 
 export const estadoBiometricoValidator: Schema = {
-  id: {
+  dispositivo: {
     notEmpty: {
       errorMessage: "id del dispositivo: Es campo obligatorio",
     },

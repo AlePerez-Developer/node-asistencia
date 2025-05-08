@@ -14,6 +14,12 @@ router.post(
 );
 
 router.post(
+  "/registroBIOSync/",
+  checkSchema(registroBIOValidator),
+  asistenciaController.registerEventBIOSync
+);
+
+router.post(
   "/registroGEO/",
   checkSchema(registroGEOValidator),
   asistenciaController.registerEventGEO
@@ -24,6 +30,8 @@ router.post(
   checkSchema(estadoBiometricoValidator),
   asistenciaController.estadoBiometrico
 );
+
+router.post("/pruebitas/", asistenciaController.pruebitas);
 
 router.get("/getStatus", asistenciaController.getStatus);
 
