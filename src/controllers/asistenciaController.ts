@@ -211,7 +211,7 @@ class asistenciaController {
       res
     );
 
-    if (persona.tipoFuncionario !== "DOC") {
+    /*if (persona.tipoFuncionario !== "DOC") {
       await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
@@ -219,7 +219,7 @@ class asistenciaController {
         dispositivo,
         res
       );
-    }
+    }*/
 
     const exists = await RegistroLyli.findOne({
       where: {
