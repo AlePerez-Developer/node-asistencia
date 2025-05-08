@@ -1,15 +1,15 @@
-import e, { Request, Response } from "express";
-import { QueryTypes } from "sequelize";
-import mensajeria from "../libs/mensajeria";
 import Persona from "../models/Persona";
+import mensajeria from "../libs/mensajeria";
 import parseFechas from "../libs/parseFechas";
-import RegistroLyli from "../models/RRHH_models/Registro";
+import notificaciones from "../libs/notificaciones";
 import RegistroRAB from "../models/RAB_models/Registro";
+import RegistroLyli from "../models/RRHH_models/Registro";
 import RegistroRRHH from "../models/RRHH_models/RegistrosRRHH";
-import { acad_conn, rab_conn, rrhh_conn } from "../db";
+import { QueryTypes } from "sequelize";
+import { Request, Response } from "express";
 import { validationResult } from "express-validator";
+import { acad_conn, rab_conn, rrhh_conn } from "../db";
 import { ProcesadoDTO } from "../dto/sp_procesado.dto";
-import { DataType } from "sequelize-typescript";
 import { DispositivoResponse } from "../dto/dispositivo-response.dto";
 import { EncargadoResponse } from "../dto/encargado-response.dto";
 
@@ -211,7 +211,7 @@ class asistenciaController {
       res
     );
 
-    /*if (persona.tipoFuncionario !== "DOC") {
+    if (persona.tipoFuncionario !== "DOC") {
       await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
@@ -219,7 +219,7 @@ class asistenciaController {
         dispositivo,
         res
       );
-    }*/
+    }
 
     const exists = await RegistroLyli.findOne({
       where: {
@@ -280,7 +280,12 @@ class asistenciaController {
 
       result.forEach((row) => {
         if (row.Procesado && persona.telefono) {
-          const msgText = `Estimado(a) ${row.NombreCompleto}\nSe registró su ${row.TipoRegistro}\nEn: ${row.NombreEdificio}\nEn fecha: ${row.HoraSellado}\nMateria: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}\ncm: ${row.Cm}`;
+          let msgText = `Estimado(a) ${row.NombreCompleto}\nSe registró su ${row.TipoRegistro}\nEn: ${row.NombreEdificio}\nEn fecha: ${row.HoraSellado}\nMateria: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}`;
+
+          if (row.SalidaSellado) {
+            msgText += `\nPuede sellar su salida desde las ${row.SalidaSellado}`;
+          }
+          msgText += `\ncm: ${row.Cm}`;
 
           const mensaje = new mensajeria(persona.telefono, msgText);
 
@@ -341,7 +346,7 @@ class asistenciaController {
       res
     );
 
-    /*if (persona.tipoFuncionario !== "DOC") {
+    if (persona.tipoFuncionario !== "DOC") {
       await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
@@ -349,7 +354,7 @@ class asistenciaController {
         dispositivo,
         res
       );
-    }*/
+    }
 
     const exists = await RegistroLyli.findOne({
       where: {
@@ -457,8 +462,10 @@ class asistenciaController {
       const msgText = `Estimado(a) ${persona.nombreCompleto}\nSe detecto que el biometrico ${dispositivo} - ${qryRta.Descripcion}\nCon direccion IP: ${qryRta.IPAddress} cambio de estado a: ${estado}\nPorfavor tomar encuenta este mensaje para informar a su unidad y/o realizar una verificacion del dispositivo.`;
 
       const mensaje = new mensajeria(persona.telefono, msgText);
+      const notificacion = new notificaciones(persona.idPersona, msgText);
 
       mensaje.enviarMensaje("000000000000");
+      //notificacion.enviarNotificacion();
       console.log("mensaje enviado", persona.telefono);
     } catch (error) {
       const mensajeError =
@@ -473,11 +480,11 @@ class asistenciaController {
   };
 
   static pruebitas = async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.body;
-    const persona = await Persona.crearPersona(id);
-    console.log("persona", persona);
+    const { id, fecha } = req.body;
+    const notificacion = new notificaciones(id, fecha);
+    notificacion.enviarNotificacion();
     return void res.status(200).json({
-      msg: persona,
+      msg: "pruebitas",
     });
   };
 
@@ -547,7 +554,7 @@ class asistenciaController {
         registroRRHH.enLinea = 1;
 
         await registroRRHH.validate();
-        await registroRRHH.save();
+        await registroRRHH.save({ returning: false });
       } catch (error) {
         const mensajeError =
           error instanceof Error ? error.message : String(error);

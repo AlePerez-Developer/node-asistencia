@@ -10,6 +10,9 @@ const app_config = {
   mensajeria_codigo: process.env.MENSAJERIA_CODIGO || "",
   mensajeria_url: process.env.MENSAJERIA_URL || "",
   mensajeria_key: process.env.MENSAJERIA_KEY || "",
+
+  notificacion_title: process.env.NOTIFICACIONES_TITLE || "",
+  notificacion_url: process.env.NOTIFICACIONES_URL || "",
 };
 
 export default app_config;
