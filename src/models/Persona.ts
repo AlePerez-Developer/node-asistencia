@@ -96,7 +96,6 @@ class Persona {
         }
       );
 
-      console.log("qryRta", qryRta);
       if (!qryRta) {
         return "DOC";
       }
