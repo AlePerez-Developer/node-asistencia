@@ -203,22 +203,31 @@ class asistenciaController {
       ":" +
       fechaTmp?.segundos;
 
-    await asistenciaController.generarRegistroRAB(
+    const rtarab = await asistenciaController.generarRegistroRAB(
       persona.idPersona,
       _fechahora,
       persona.tipoFuncionario,
-      dispositivo,
-      res
+      dispositivo
     );
 
+    if (!rtarab) {
+      return void res
+        .status(400)
+        .json({ msg: "error al crear el registro en rab" });
+    }
+
     if (persona.tipoFuncionario !== "DOC") {
-      await asistenciaController.generarRegistroRRHH(
+      const rtarrhh = await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
         persona.tipoFuncionario,
-        dispositivo,
-        res
+        dispositivo
       );
+      if (!rtarrhh) {
+        return void res
+          .status(400)
+          .json({ msg: "error al crear el registro en rrhh" });
+      }
     }
 
     const exists = await RegistroLyli.findOne({
@@ -288,9 +297,11 @@ class asistenciaController {
           msgText += `\ncm: ${row.Cm}`;
 
           const mensaje = new mensajeria(persona.telefono, msgText);
+          const notificacion = new notificaciones(persona.idPersona, msgText);
 
           mensaje.enviarMensaje(row.Cm);
-          console.log("mensaje enviado", persona.telefono);
+          notificacion.enviarNotificacion();
+          console.log("mensaje/notificacion enviada", persona.telefono);
         }
       });
     } catch (error) {
@@ -342,8 +353,7 @@ class asistenciaController {
       persona.idPersona,
       _fechahora,
       persona.tipoFuncionario,
-      dispositivo,
-      res
+      dispositivo
     );
 
     if (persona.tipoFuncionario !== "DOC") {
@@ -351,8 +361,7 @@ class asistenciaController {
         persona.idPersona,
         _fechahora,
         persona.tipoFuncionario,
-        dispositivo,
-        res
+        dispositivo
       );
     }
 
@@ -375,7 +384,7 @@ class asistenciaController {
       registro.FechaHora = _fechahora;
       registro.TipoFuncionario = persona.tipoFuncionario;
       registro.IdDispositivo = dispositivo;
-      registro.EnLinea = 1;
+      registro.EnLinea = 0;
       registro.CodigoProcesado = null;
 
       await registro.validate();
@@ -462,10 +471,9 @@ class asistenciaController {
       const msgText = `Estimado(a) ${persona.nombreCompleto}\nSe detecto que el biometrico ${dispositivo} - ${qryRta.Descripcion}\nCon direccion IP: ${qryRta.IPAddress} cambio de estado a: ${estado}\nPorfavor tomar encuenta este mensaje para informar a su unidad y/o realizar una verificacion del dispositivo.`;
 
       const mensaje = new mensajeria(persona.telefono, msgText);
-      const notificacion = new notificaciones(persona.idPersona, msgText);
 
       mensaje.enviarMensaje("000000000000");
-      //notificacion.enviarNotificacion();
+
       console.log("mensaje enviado", persona.telefono);
     } catch (error) {
       const mensajeError =
@@ -481,8 +489,8 @@ class asistenciaController {
 
   static pruebitas = async (req: Request, res: Response): Promise<void> => {
     const { id, fecha } = req.body;
-    const notificacion = new notificaciones(id, fecha);
-    notificacion.enviarNotificacion();
+    //const notificacion = new notificaciones(id, fecha);
+    //notificacion.enviarNotificacion();
     return void res.status(200).json({
       msg: "pruebitas",
     });
@@ -492,8 +500,7 @@ class asistenciaController {
     idpersona: string,
     fechahora: string,
     tipoFuncionario: string,
-    dispositivo: number,
-    res: Response
+    dispositivo: number
   ) {
     const existsRAB = await RegistroRAB.findOne({
       where: {
@@ -519,11 +526,7 @@ class asistenciaController {
         const mensajeError =
           error instanceof Error ? error.message : String(error);
         console.error("Error al crear el registro RAB:", mensajeError);
-
-        return res.status(500).json({
-          descripcion: "Error al crear el registro RAB",
-          msg: mensajeError,
-        });
+        return false;
       }
     }
   }
@@ -532,8 +535,7 @@ class asistenciaController {
     idpersona: string,
     fechahora: string,
     tipoFuncionario: string,
-    dispositivo: number,
-    res: Response
+    dispositivo: number
   ) {
     const existsRRHH = await RegistroRRHH.findOne({
       where: {
@@ -560,10 +562,7 @@ class asistenciaController {
           error instanceof Error ? error.message : String(error);
         console.error("Error al crear el registro RRHH:", mensajeError);
 
-        return res.status(500).json({
-          descripcion: "Error al crear el registro RRHH",
-          msg: mensajeError,
-        });
+        return false;
       }
     }
   }
