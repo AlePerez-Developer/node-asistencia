@@ -280,7 +280,7 @@ class asistenciaController {
 
       result.forEach((row) => {
         if (row.Procesado && persona.telefono) {
-          const msgText = `Estimado(a) ${row.NombreCompleto}\nSe registró su ${row.TipoRegistro}\nEn: ${row.NombreEdificio}\nEn fecha: ${row.HoraSellado}\nMateria: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}\nPuede sellar su salida desde las: ${row.SalidaSellado}\ncm: ${row.Cm}`;
+          const msgText = `Estimado(a) ${row.NombreCompleto}\nSe registró su ${row.TipoRegistro}\nEn: ${row.NombreEdificio}\nEn fecha: ${row.HoraSellado}\nMateria: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}\ncm: ${row.Cm}`;
 
           const mensaje = new mensajeria(persona.telefono, msgText);
 
@@ -341,7 +341,7 @@ class asistenciaController {
       res
     );
 
-    if (persona.tipoFuncionario !== "DOC") {
+    /*if (persona.tipoFuncionario !== "DOC") {
       await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
@@ -349,7 +349,7 @@ class asistenciaController {
         dispositivo,
         res
       );
-    }
+    }*/
 
     const exists = await RegistroLyli.findOne({
       where: {
