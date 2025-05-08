@@ -489,7 +489,7 @@ class asistenciaController {
 
   static pruebitas = async (req: Request, res: Response): Promise<void> => {
     const { id, fecha } = req.body;
-    //await asistenciaController.generarRegistroRRHH(id, fecha, "ADM", 3);
+    await asistenciaController.generarRegistroRRHH(id, fecha, "ADM", 3);
     return void res.status(200).json({
       msg: "pruebitas",
     });
