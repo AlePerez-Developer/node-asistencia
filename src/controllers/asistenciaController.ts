@@ -190,8 +190,6 @@ class asistenciaController {
     const persona = await Persona.crearPersona(idpersona.trim());
     const fechaTmp = parseFechas.parseFechaHora(fechahora);
 
-    console.log("datos de la persona", persona);
-
     const _fechahora =
       fechaTmp?.anio +
       "-" +
@@ -205,14 +203,14 @@ class asistenciaController {
       ":" +
       fechaTmp?.segundos;
 
-    /*const rtarab = await asistenciaController.generarRegistroRAB(
+    const rtarab = await asistenciaController.generarRegistroRAB(
       persona.idPersona,
       _fechahora,
       persona.tipoFuncionario,
       dispositivo
     );
 
-    if (!rtarab) {
+    /*if (!rtarab) {
       return void res
         .status(400)
         .json({ msg: "error al crear el registro en rab" });
@@ -232,7 +230,6 @@ class asistenciaController {
       }
     }*/
 
-    console.log("antes lily");
     const exists = await RegistroLyli.findOne({
       where: {
         idPersona: persona.idPersona,
@@ -241,12 +238,12 @@ class asistenciaController {
         IdDispositivo: dispositivo,
       },
     });
-    console.log("despues lily");
+
     if (exists) {
       console.log("ya existe un registro", exists);
       return void res.status(400).json({ msg: "ya existe un registro" });
     }
-    console.log("muy despues lily");
+
     const registro = RegistroLyli.build();
     try {
       registro.idPersona = persona.idPersona;
@@ -258,7 +255,6 @@ class asistenciaController {
 
       await registro.validate();
       await registro.save();
-      console.log("creado lily", registro);
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
@@ -268,7 +264,7 @@ class asistenciaController {
         msg: mensajeError,
       });
     }
-    console.log("antes proc");
+
     try {
       const result = await rrhh_conn.query<ProcesadoDTO>(
         `SET LANGUAGE spanish; 
@@ -292,7 +288,6 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
-      console.log("rta respuesta", result);
       result.forEach((row) => {
         console.log("row", row);
         if (row.Procesado && persona.telefono) {
@@ -313,7 +308,7 @@ class asistenciaController {
       });
       console.log("procesado correcto registro BIO", persona.idPersona);
       return void res.status(200).json({
-        msg: "procesado correcto",
+        msg: "procesado correcto registro BIO",
       });
     } catch (error) {
       const mensajeError =
@@ -362,14 +357,14 @@ class asistenciaController {
       dispositivo
     );
 
-    /*if (persona.tipoFuncionario !== "DOC") {
+    if (persona.tipoFuncionario !== "DOC") {
       await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
         persona.tipoFuncionario,
         dispositivo
       );
-    }*/
+    }
 
     const exists = await RegistroLyli.findOne({
       where: {
