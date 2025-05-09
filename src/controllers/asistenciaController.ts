@@ -218,7 +218,7 @@ class asistenciaController {
         .json({ msg: "error al crear el registro en rab" });
     }
 
-    if (persona.tipoFuncionario !== "DOC") {
+    /*if (persona.tipoFuncionario !== "DOC") {
       const rtarrhh = await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
@@ -230,7 +230,7 @@ class asistenciaController {
           .status(400)
           .json({ msg: "error al crear el registro en rrhh" });
       }
-    }
+    }*/
 
     const exists = await RegistroLyli.findOne({
       where: {
@@ -360,14 +360,14 @@ class asistenciaController {
       dispositivo
     );
 
-    if (persona.tipoFuncionario !== "DOC") {
+    /*if (persona.tipoFuncionario !== "DOC") {
       await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
         persona.tipoFuncionario,
         dispositivo
       );
-    }
+    }*/
 
     const exists = await RegistroLyli.findOne({
       where: {
