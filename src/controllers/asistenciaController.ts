@@ -12,6 +12,7 @@ import { acad_conn, rab_conn, rrhh_conn } from "../db";
 import { ProcesadoDTO } from "../dto/sp_procesado.dto";
 import { DispositivoResponse } from "../dto/dispositivo-response.dto";
 import { EncargadoResponse } from "../dto/encargado-response.dto";
+import { date } from "zod";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -210,25 +211,14 @@ class asistenciaController {
       dispositivo
     );
 
-    /*if (!rtarab) {
-      return void res
-        .status(400)
-        .json({ msg: "error al crear el registro en rab" });
-    }*/
-
-    /*if (persona.tipoFuncionario !== "DOC") {
+    if (persona.tipoFuncionario !== "DOC") {
       const rtarrhh = await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
         persona.tipoFuncionario,
         dispositivo
       );
-      if (!rtarrhh) {
-        return void res
-          .status(400)
-          .json({ msg: "error al crear el registro en rrhh" });
-      }
-    }*/
+    }
 
     const exists = await RegistroLyli.findOne({
       where: {
@@ -289,7 +279,6 @@ class asistenciaController {
       }
 
       result.forEach((row) => {
-        console.log("row", row);
         if (row.Procesado && persona.telefono) {
           let msgText = `Estimado(a) ${row.NombreCompleto}\nSe registró su ${row.TipoRegistro}\nEn: ${row.NombreEdificio}\nEn fecha: ${row.HoraSellado}\nMateria: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}`;
 
@@ -303,7 +292,12 @@ class asistenciaController {
 
           mensaje.enviarMensaje(row.Cm);
           notificacion.enviarNotificacion();
-          console.log("mensaje/notificacion enviada", persona.telefono);
+          console.log(
+            new Date().toString(),
+            "mensaje/notificacion enviada",
+            persona.idPersona,
+            persona.telefono
+          );
         }
       });
       console.log("procesado correcto registro BIO", persona.idPersona);
