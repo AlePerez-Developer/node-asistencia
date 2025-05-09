@@ -171,7 +171,7 @@ class asistenciaController {
     }
 
     return void res.status(200).json({
-      msg: "acceso correcto",
+      msg: "acceso correcto registro GEO",
     });
   };
 
@@ -189,6 +189,8 @@ class asistenciaController {
 
     const persona = await Persona.crearPersona(idpersona.trim());
     const fechaTmp = parseFechas.parseFechaHora(fechahora);
+
+    console.log("datos de la persona", persona);
 
     const _fechahora =
       fechaTmp?.anio +
@@ -288,6 +290,7 @@ class asistenciaController {
       }
 
       result.forEach((row) => {
+        console.log("row", row);
         if (row.Procesado && persona.telefono) {
           let msgText = `Estimado(a) ${row.NombreCompleto}\nSe registró su ${row.TipoRegistro}\nEn: ${row.NombreEdificio}\nEn fecha: ${row.HoraSellado}\nMateria: ${row.SiglaMateria} (${row.Grupo}) ${row.TipoGrupoMateria}`;
 
@@ -315,7 +318,7 @@ class asistenciaController {
       });
     }
 
-    console.log("procesado correcto", persona.idPersona);
+    console.log("procesado correcto registro BIO", persona.idPersona);
     return void res.status(200).json({
       msg: "procesado correcto",
     });
@@ -432,7 +435,7 @@ class asistenciaController {
       });
     }
 
-    console.log("procesado correcto", persona.idPersona);
+    console.log("procesado correcto registro biosync", persona.idPersona);
     return void res.status(200).json({
       msg: "procesado correcto",
     });
