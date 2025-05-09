@@ -242,6 +242,7 @@ class asistenciaController {
     });
 
     if (exists) {
+      console.log("ya existe un registro", exists);
       return void res.status(400).json({ msg: "ya existe un registro" });
     }
 
@@ -289,6 +290,7 @@ class asistenciaController {
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
 
+      console.log("rta respuesta", result);
       result.forEach((row) => {
         console.log("row", row);
         if (row.Procesado && persona.telefono) {
@@ -307,6 +309,10 @@ class asistenciaController {
           console.log("mensaje/notificacion enviada", persona.telefono);
         }
       });
+      console.log("procesado correcto registro BIO", persona.idPersona);
+      return void res.status(200).json({
+        msg: "procesado correcto",
+      });
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
@@ -317,11 +323,6 @@ class asistenciaController {
         msg: mensajeError,
       });
     }
-
-    console.log("procesado correcto registro BIO", persona.idPersona);
-    return void res.status(200).json({
-      msg: "procesado correcto",
-    });
   };
 
   static registerEventBIOSync = async (
