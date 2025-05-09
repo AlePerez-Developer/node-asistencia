@@ -561,12 +561,13 @@ class asistenciaController {
           },
           { returning: false }
         );
+        return true;
       } catch (error) {
         if (
           error instanceof TypeError &&
           error.message.includes("Cannot read properties of undefined")
         ) {
-          // Ignorar el error, ya que no afecta la operación real
+          return true;
         } else {
           console.error(
             "Error real al crear el registro RRHH:",
