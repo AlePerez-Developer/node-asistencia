@@ -5,22 +5,26 @@ import { NotificacionDTO } from "../dto/notificaciones.dto";
 class notificaciones {
   private idpersona: string;
   private mensaje: string;
+  private salida: string;
 
-  constructor(idpersona: string, mensaje: string) {
+  constructor(idpersona: string, mensaje: string, salida: string) {
     this.idpersona = idpersona;
     this.mensaje = mensaje;
+    this.salida = salida;
   }
   async enviarNotificacion() {
     const notificacion: NotificacionDTO = {
       title: app_config.notificacion_title,
       body: this.mensaje,
       userIds: [this.idpersona],
+      salida: this.salida,
       type: "",
       startDate: "",
       endDate: "",
       LugarId: "",
       link: "",
       image: "",
+      data: { biometrico: true },
     };
     try {
       const response = await axios.post(

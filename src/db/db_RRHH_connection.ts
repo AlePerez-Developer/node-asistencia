@@ -2,6 +2,9 @@ import { Sequelize } from "sequelize-typescript";
 import databaseConfig from "../config/database.config";
 import { Dialect } from "sequelize";
 import path from "path";
+import Registro from "../models/RRHH_models/Registro";
+import RegistroRRHH from "../models/RRHH_models/RegistrosRRHH";
+import DispositivoEdificio from "../models/RRHH_models/DispositivoEdificio";
 
 export const rrhh_conn = new Sequelize(
   databaseConfig.RRHH_db.database,
@@ -18,7 +21,7 @@ export const rrhh_conn = new Sequelize(
         trustservercertificate: true,
       },
     },
-    models: [path.resolve(__dirname, "../models/RRHH_models")],
+    models: [Registro, RegistroRRHH, DispositivoEdificio],
     logging: false,
   }
 );

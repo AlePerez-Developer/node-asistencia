@@ -32,7 +32,7 @@ COPY --from=constructor /app/dist ./dist
 RUN npm install --production && npm prune --production && npm cache clean --force
 
 # Expone el puerto en el que el servidor está escuchando
-EXPOSE 3001
+EXPOSE 3333
 
 # Ejecuta el comando para iniciar la aplicación
 CMD ["npm","start"]

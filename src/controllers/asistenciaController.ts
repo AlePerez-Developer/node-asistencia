@@ -5,14 +5,16 @@ import notificaciones from "../libs/notificaciones";
 import RegistroRAB from "../models/RAB_models/Registro";
 import RegistroLyli from "../models/RRHH_models/Registro";
 import RegistroRRHH from "../models/RRHH_models/RegistrosRRHH";
-import { QueryTypes } from "sequelize";
+import { QueryTypes, Op } from "sequelize";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { acad_conn, rab_conn, rrhh_conn } from "../db";
 import { ProcesadoDTO } from "../dto/sp_procesado.dto";
 import { DispositivoResponse } from "../dto/dispositivo-response.dto";
 import { EncargadoResponse } from "../dto/encargado-response.dto";
-import { date } from "zod";
+import { responseGeo } from "../interfaces/registroGeo/responseGeo.interface";
+import { eventoGeo } from "../interfaces/registroGeo/eventoGeo.interface";
+import { EventoSalidas } from "../interfaces/registroGeo/eventoGeo-salidas.interface";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -58,6 +60,9 @@ class asistenciaController {
     }
 
     const { idpersona, fechahora, edificio } = req.body;
+
+    const salidas: eventoGeo[] = [];
+    const entradas: EventoSalidas[] = [];
 
     let dispositivo = "";
 
@@ -126,6 +131,8 @@ class asistenciaController {
       registro.IdDispositivo = parseInt(dispositivo);
       registro.EnLinea = 1;
       registro.CodigoProcesado = null;
+      registro.TipoMarcado = "GEO";
+      registro.FechaHoraProcesado = null;
 
       await registro.validate();
       await registro.save();
@@ -161,6 +168,28 @@ class asistenciaController {
         console.log("error procesado de datos", result);
         return void res.status(400).json({ msg: "error procesado de datos" });
       }
+
+      result.forEach((row) => {
+        if (row.Procesado) {
+          if (row.TipoRegistro === "ENTRADA") {
+            entradas.push({
+              edificio: row.NombreEdificio,
+              siglamateria: row.SiglaMateria,
+              grupo: row.Grupo,
+              tipogrupomateria: row.TipoGrupoMateria,
+              horasalidaminima: row.FechaHoraMinimaSalida,
+              horasalidamaxima: row.FechaHoraMaximaSalida,
+            });
+          } else {
+            salidas.push({
+              edificio: row.NombreEdificio,
+              siglamateria: row.SiglaMateria,
+              grupo: row.Grupo,
+              tipogrupomateria: row.TipoGrupoMateria,
+            });
+          }
+        }
+      });
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
@@ -171,8 +200,20 @@ class asistenciaController {
       });
     }
 
+    const Respuesta: responseGeo = {
+      msg: "acceso correcto",
+      nombre: persona.nombreCompleto,
+      salidas: salidas,
+      entradas: {
+        horasalidaminima: entradas[0]?.horasalidaminima,
+        horasalidamaxima: entradas[0]?.horasalidamaxima,
+        materias: entradas,
+      },
+    };
+
+    console.log(Respuesta);
     return void res.status(200).json({
-      msg: "acceso correcto registro GEO",
+      Respuesta,
     });
   };
 
@@ -204,7 +245,7 @@ class asistenciaController {
       ":" +
       fechaTmp?.segundos;
 
-    const rtarab = await asistenciaController.generarRegistroRAB(
+    await asistenciaController.generarRegistroRAB(
       persona.idPersona,
       _fechahora,
       persona.tipoFuncionario,
@@ -212,7 +253,7 @@ class asistenciaController {
     );
 
     if (persona.tipoFuncionario !== "DOC") {
-      const rtarrhh = await asistenciaController.generarRegistroRRHH(
+      await asistenciaController.generarRegistroRRHH(
         persona.idPersona,
         _fechahora,
         persona.tipoFuncionario,
@@ -242,6 +283,8 @@ class asistenciaController {
       registro.IdDispositivo = dispositivo;
       registro.EnLinea = 1;
       registro.CodigoProcesado = null;
+      registro.TipoMarcado = "BIO";
+      registro.FechaHoraProcesado = null;
 
       await registro.validate();
       await registro.save();
@@ -288,7 +331,11 @@ class asistenciaController {
           msgText += `\ncm: ${row.Cm}`;
 
           const mensaje = new mensajeria(persona.telefono, msgText);
-          const notificacion = new notificaciones(persona.idPersona, msgText);
+          const notificacion = new notificaciones(
+            persona.idPersona,
+            msgText,
+            row.SalidaSellado
+          );
 
           mensaje.enviarMensaje(row.Cm);
           notificacion.enviarNotificacion();
@@ -381,6 +428,8 @@ class asistenciaController {
       registro.IdDispositivo = dispositivo;
       registro.EnLinea = 0;
       registro.CodigoProcesado = null;
+      registro.TipoMarcado = "BIO";
+      registro.FechaHoraProcesado = null;
 
       await registro.validate();
       await registro.save();

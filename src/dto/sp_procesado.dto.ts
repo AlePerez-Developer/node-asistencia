@@ -10,4 +10,6 @@ export interface ProcesadoDTO {
   TipoGrupoMateria: string;
   Cm: string;
   SalidaSellado: string;
+  FechaHoraMinimaSalida: string;
+  FechaHoraMaximaSalida: string;
 }

@@ -5,7 +5,15 @@ import {
   Optional,
   Sequelize,
 } from "sequelize";
-import { Table, Model, Column, DataType } from "sequelize-typescript";
+import {
+  AllowNull,
+  AutoIncrement,
+  Column,
+  DataType,
+  Model,
+  PrimaryKey,
+  Table,
+} from "sequelize-typescript";
 
 interface RegistroAttributes {
   id: number;
@@ -14,85 +22,51 @@ interface RegistroAttributes {
   TipoFuncionario: string;
   IdDispositivo: number;
   EnLinea: number;
-  CodigoProcesado: string;
+  CodigoProcesado?: string;
 }
 
 type RegistroCreationAttributes = Optional<RegistroAttributes, "id">;
 
 @Table({
-  timestamps: false,
   tableName: "RegistrosLyli",
-  modelName: "Registro",
+  timestamps: false,
 })
-export default class Registro extends Model<
-  RegistroAttributes,
-  RegistroCreationAttributes
-> {
-  @Column({
-    type: DataType.INTEGER,
-    primaryKey: true,
-    autoIncrement: true,
-  })
+export default class Registro extends Model {
+  @PrimaryKey
+  @AutoIncrement
+  @AllowNull(false)
+  @Column(DataType.NUMBER)
   declare id: number;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    validate: {
-      notNull: {
-        msg: "Debe ingresar un valor para el campo idPersona",
-      },
-    },
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   declare idPersona: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    validate: {
-      notNull: {
-        msg: "Debe ingresar un valor para el campo FechaHora",
-      },
-    },
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   declare FechaHora: string;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    validate: {
-      notNull: {
-        msg: "Debe ingresar un valor para el campo TipoFuncionario",
-      },
-    },
-  })
+  @AllowNull(false)
+  @Column(DataType.STRING)
   declare TipoFuncionario: string;
 
-  @Column({
-    type: DataType.NUMBER,
-    allowNull: false,
-    validate: {
-      notNull: {
-        msg: "Debe ingresar un valor para el campo idDispositivo",
-      },
-    },
-  })
+  @AllowNull(false)
+  @Column(DataType.NUMBER)
   declare IdDispositivo: number;
 
-  @Column({
-    type: DataType.NUMBER,
-    allowNull: false,
-    validate: {
-      notNull: {
-        msg: "Debe ingresar un valor para el campo EnLinea",
-      },
-    },
-  })
+  @AllowNull(false)
+  @Column(DataType.NUMBER)
   declare EnLinea: number;
 
-  @Column({
-    type: DataType.STRING,
-    allowNull: true,
-  })
+  @AllowNull(true)
+  @Column(DataType.STRING)
   declare CodigoProcesado: string | null;
+
+  @AllowNull(true)
+  @Column(DataType.STRING)
+  declare TipoMarcado: string | null;
+
+  @AllowNull(true)
+  @Column(DataType.STRING)
+  declare FechaHoraProcesado: string | null;
 }
