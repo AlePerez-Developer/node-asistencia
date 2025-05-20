@@ -1,4 +1,4 @@
-export interface NotificacionDTO {
+export interface notificacion {
   title: string;
   body: string;
   userIds: string[];

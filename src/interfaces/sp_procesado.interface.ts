@@ -1,4 +1,4 @@
-export interface ProcesadoDTO {
+export interface sp_procesado {
   Procesado: number;
   IdPersona: string;
   TipoRegistro: string;

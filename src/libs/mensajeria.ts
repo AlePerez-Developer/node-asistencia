@@ -1,6 +1,6 @@
 import axios from "axios";
 import app_config from "../config/app.config";
-import { PostData } from "../dto/whatsApp_postdata.dto";
+import { whatsapp_postdata } from "../interfaces/whatsapp_postdata.interface";
 
 class mensajeria {
   private telefono: string;
@@ -17,7 +17,7 @@ class mensajeria {
       "Content-Type": "application/json",
     };
 
-    const datos: PostData = {
+    const datos: whatsapp_postdata = {
       aplicacion: app_config.mensajeria_app,
       telefono: this.telefono,
       mensaje: this.mensaje,

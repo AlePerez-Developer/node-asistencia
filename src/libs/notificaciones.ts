@@ -1,6 +1,6 @@
 import axios from "axios";
 import app_config from "../config/app.config";
-import { NotificacionDTO } from "../dto/notificaciones.dto";
+import { notificacion } from "../interfaces/notificaciones.interface";
 
 class notificaciones {
   private idpersona: string;
@@ -13,7 +13,7 @@ class notificaciones {
     this.salida = salida;
   }
   async enviarNotificacion() {
-    const notificacion: NotificacionDTO = {
+    const notificacion: notificacion = {
       title: app_config.notificacion_title,
       body: this.mensaje,
       userIds: [this.idpersona],

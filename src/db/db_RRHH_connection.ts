@@ -5,6 +5,7 @@ import path from "path";
 import Registro from "../models/RRHH_models/Registro";
 import RegistroRRHH from "../models/RRHH_models/RegistrosRRHH";
 import DispositivoEdificio from "../models/RRHH_models/DispositivoEdificio";
+import PersonaRAB from "../models/RRHH_models/PersonaRAB";
 
 export const rrhh_conn = new Sequelize(
   databaseConfig.RRHH_db.database,
@@ -21,7 +22,7 @@ export const rrhh_conn = new Sequelize(
         trustservercertificate: true,
       },
     },
-    models: [Registro, RegistroRRHH, DispositivoEdificio],
+    models: [Registro, RegistroRRHH, DispositivoEdificio, PersonaRAB],
     logging: false,
   }
 );
