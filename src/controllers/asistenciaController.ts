@@ -129,7 +129,7 @@ class asistenciaController {
        EXECUTE procesarAsistenciaLyli @idpersona = :idpersona, @horaSellado = :fechahora, @iddispositivo = :dispositivo, @idregistro = :idregisto, @mostrarMensaje = :mostrarMensaje;`,
         {
           replacements: {
-            idpersona: idpersona,
+            idpersona: persona.idPersona,
             fechahora: fechahora,
             dispositivo: dispositivo.iddispositivo,
             idregisto: registro.id,
