@@ -10,7 +10,7 @@ import {
 } from "sequelize-typescript";
 
 interface RegistroAttributes {
-  id: number;
+  id: string;
   idPersona: string;
   FechaHora: string;
   TipoFuncionario: string;
@@ -31,8 +31,8 @@ export default class RegistroRRHH extends Model<
   @PrimaryKey
   @AutoIncrement
   @AllowNull(false)
-  @Column(DataType.NUMBER)
-  declare id: number;
+  @Column(DataType.STRING)
+  declare id: string;
 
   @AllowNull(false)
   @Column(DataType.STRING)
