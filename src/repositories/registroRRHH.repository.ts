@@ -25,7 +25,6 @@ export class RegistroRRHHRepository {
           IdDispositivo: dispositivo,
           enLinea: 1,
         });
-
         await registroRRHH.validate();
         await registroRRHH.save({ returning: false });
         return true;

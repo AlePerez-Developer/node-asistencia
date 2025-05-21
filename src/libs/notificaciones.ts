@@ -33,7 +33,9 @@ class notificaciones {
       );
       console.log("Respuesta del servidor:", response.data);
     } catch (error) {
-      console.error("Error al enviar el POST:", error);
+      const mensajeError =
+        error instanceof Error ? error.message : String(error);
+      console.error("Error al enviar la notificacion:", mensajeError);
     }
   }
 }

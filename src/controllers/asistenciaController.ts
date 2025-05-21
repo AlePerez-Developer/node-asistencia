@@ -131,7 +131,7 @@ class asistenciaController {
           replacements: {
             idpersona: persona.idPersona,
             fechahora: fechahora,
-            dispositivo: dispositivo,
+            dispositivo: dispositivo.iddispositivo,
             idregisto: registro.id,
             mostrarMensaje: 1,
           },
@@ -511,13 +511,27 @@ class asistenciaController {
   static pruebitas = async (req: Request, res: Response): Promise<void> => {
     const { id, fecha } = req.body;
 
-    const dispositivo = await dispositivo_dto.create(id);
-    if (dispositivo.iddispositivo === "0") {
-      return void res
-        .status(400)
-        .json({ msg: "error al obtener el dispositivo" });
-    }
-    console.log(dispositivo);
+    const fechaTmp = parseFechas.parseFechaHora(fecha);
+
+    const _fechahora =
+      fechaTmp?.anio +
+      "-" +
+      fechaTmp?.mes +
+      "-" +
+      fechaTmp?.dia +
+      " " +
+      fechaTmp?.hora +
+      ":" +
+      fechaTmp?.minutos +
+      ":" +
+      fechaTmp?.segundos;
+
+    await RegistroRRHHRepository.generarRegistroRRHH(
+      "5493446-1H",
+      _fechahora,
+      "ADM",
+      3
+    );
 
     return void res.status(200).json({
       msg: "pruebitas",
