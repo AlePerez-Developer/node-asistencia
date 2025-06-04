@@ -31,7 +31,10 @@ type RegistroCreationAttributes = Optional<RegistroAttributes, "id">;
   tableName: "RegistrosLyli",
   timestamps: false,
 })
-export default class Registro extends Model {
+export default class Registro extends Model<
+  RegistroAttributes,
+  RegistroCreationAttributes
+> {
   @PrimaryKey
   @AutoIncrement
   @AllowNull(false)

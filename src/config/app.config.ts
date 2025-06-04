@@ -13,6 +13,7 @@ const app_config = {
 
   notificacion_title: process.env.NOTIFICACIONES_TITLE || "",
   notificacion_url: process.env.NOTIFICACIONES_URL || "",
+  notificacion_key: process.env.NOTIFICACIONES_KEY || "",
 };
 
 export default app_config;

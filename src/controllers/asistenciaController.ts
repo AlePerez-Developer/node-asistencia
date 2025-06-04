@@ -15,6 +15,7 @@ import { EventoSalidas } from "../interfaces/eventoGeo-salidas.interface";
 import { RegistroRABRepository } from "../repositories/registroRAB.repository";
 import { RegistroRRHHRepository } from "../repositories/registroRRHH.repository";
 import { dispositivo_dto } from "../dto/dispositivo.dto";
+import { error } from "console";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -55,17 +56,32 @@ class asistenciaController {
   ): Promise<void> => {
     const validation = validationResult(req);
     if (!validation.isEmpty()) {
-      console.log("error de validacion", validation.array());
-      return void res.status(400).json({ error: validation.array() });
+      console.error(
+        new Date().toString(),
+        "REGISTROGEO - error de validacion",
+        validation.array()
+      );
+      return void res.status(400).json({
+        estado: "error",
+        msg: "error en la validacion",
+        error: validation.array(),
+      });
     }
 
     const { idpersona, fechahora, edificio } = req.body;
 
     const dispositivo = await dispositivo_dto.create(edificio);
     if (dispositivo.iddispositivo === "0") {
-      return void res
-        .status(400)
-        .json({ msg: "error al obtener el dispositivo" });
+      console.error(
+        new Date().toString(),
+        "REGISTROGEO - error al obtener el dispositivo, edificio no encontrado",
+        edificio
+      );
+      return void res.status(400).json({
+        estado: "error",
+        msg: "error al obtener el dispositivo",
+        error: "dispositivo no encontrado",
+      });
     }
 
     const salidas: eventoGeo[] = [];
@@ -97,7 +113,17 @@ class asistenciaController {
     });
 
     if (exists) {
-      return void res.status(400).json({ msg: "ya existe un registro" });
+      console.error(
+        new Date().toString(),
+        "REGISTROGEO - registro repetido",
+        idpersona,
+        _fechahora
+      );
+      return void res.status(400).json({
+        estado: "error",
+        msg: "ya existe un registro",
+        error: "registro repetido",
+      });
     }
 
     const registro = RegistroLyli.build();
@@ -116,10 +142,15 @@ class asistenciaController {
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error al crear el registro:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "REGISTROGEO - Error al crear el registro:",
+        mensajeError
+      );
       res.status(500).json({
-        descripcion: "Error al crear el registro",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error al crear el registro",
+        error: mensajeError,
       });
     }
 
@@ -142,8 +173,18 @@ class asistenciaController {
       );
 
       if (!result) {
-        console.log("error procesado de datos", result);
-        return void res.status(400).json({ msg: "error procesado de datos" });
+        console.error(
+          new Date().toString(),
+          "REGISTROGEO - error procesado de datos",
+          idpersona,
+          _fechahora,
+          result
+        );
+        return void res.status(400).json({
+          estado: "error",
+          msg: "error procesado de datos",
+          error: "error procesado de datos",
+        });
       }
 
       result.forEach((row) => {
@@ -170,10 +211,17 @@ class asistenciaController {
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error en la ejecucion del procedimiento:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "REGISTROGEO - Error en la ejecucion del procedimiento:",
+        idpersona,
+        _fechahora,
+        mensajeError
+      );
       res.status(500).json({
-        descripcion: "Error en la ejecucion del procedimiento",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error en la ejecucion del procedimiento",
+        error: mensajeError,
       });
     }
 
@@ -187,8 +235,6 @@ class asistenciaController {
         materias: entradas,
       },
     };
-
-    console.log(Respuesta);
     return void res.status(200).json({
       Respuesta,
     });
@@ -200,8 +246,16 @@ class asistenciaController {
   ): Promise<void> => {
     const validation = validationResult(req);
     if (!validation.isEmpty()) {
-      console.log("error de validacion", validation.array());
-      return void res.status(400).json({ error: validation.array() });
+      console.error(
+        new Date().toString(),
+        "REGISTROBIO - error de validacion",
+        validation.array()
+      );
+      return void res.status(400).json({
+        estado: "error",
+        msg: "error en la validacion",
+        error: validation.array(),
+      });
     }
 
     const { idpersona, fechahora, dispositivo } = req.body;
@@ -248,8 +302,11 @@ class asistenciaController {
     });
 
     if (exists) {
-      console.log("ya existe un registro", exists);
-      return void res.status(400).json({ msg: "ya existe un registro" });
+      return void res.status(400).json({
+        estado: "error",
+        msg: "ya existe un registro",
+        error: "registro repetido",
+      });
     }
 
     const registro = RegistroLyli.build();
@@ -268,10 +325,17 @@ class asistenciaController {
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error al crear el registro:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "REGISTROBIO - Error al crear el registro:",
+        idpersona,
+        _fechahora,
+        mensajeError
+      );
       res.status(500).json({
-        descripcion: "Error al crear el registro",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error al crear el registro",
+        error: mensajeError,
       });
     }
 
@@ -294,8 +358,18 @@ class asistenciaController {
       );
 
       if (!result) {
-        console.log("error procesado de datos", result);
-        return void res.status(400).json({ msg: "error procesado de datos" });
+        console.error(
+          new Date().toString(),
+          "REGISTROBIO - error procesado de datos",
+          idpersona,
+          _fechahora,
+          result
+        );
+        return void res.status(400).json({
+          estado: "error",
+          msg: "error procesado de datos",
+          error: "error procesado de datos",
+        });
       }
 
       result.forEach((row) => {
@@ -316,28 +390,31 @@ class asistenciaController {
 
           mensaje.enviarMensaje(row.Cm);
           notificacion.enviarNotificacion();
-          console.log(
-            new Date().toString(),
-            "mensaje/notificacion enviada",
-            persona.idPersona,
-            persona.telefono
-          );
         }
-      });
-      console.log("procesado correcto registro BIO", persona.idPersona);
-      return void res.status(200).json({
-        msg: "procesado correcto registro BIO",
       });
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error al ejecutar el procedimiento:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "Error al ejecutar el procedimiento:",
+        idpersona,
+        _fechahora,
+        mensajeError
+      );
 
       return void res.status(500).json({
-        descripcion: "Error al crear el registro",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error al ejecutar el procedimiento",
+        error: mensajeError,
       });
     }
+
+    return void res.status(200).json({
+      estado: "ok",
+      msg: "procesado correcto registro BIO",
+      error: "",
+    });
   };
 
   static registerEventBIOSync = async (
@@ -346,8 +423,16 @@ class asistenciaController {
   ): Promise<void> => {
     const validation = validationResult(req);
     if (!validation.isEmpty()) {
-      console.log("error de validacion", validation.array());
-      return void res.status(400).json({ error: validation.array() });
+      console.error(
+        new Date().toString(),
+        "error de validacion",
+        validation.array()
+      );
+      return void res.status(400).json({
+        estado: "error",
+        msg: "error en la validacion",
+        error: validation.array(),
+      });
     }
 
     const { idpersona, fechahora, dispositivo } = req.body;
@@ -394,7 +479,11 @@ class asistenciaController {
     });
 
     if (exists) {
-      return void res.status(400).json({ msg: "ya existe un registro" });
+      return void res.status(400).json({
+        estado: "error",
+        msg: "ya existe un registro",
+        error: "registro repetido",
+      });
     }
 
     const registro = RegistroLyli.build();
@@ -413,10 +502,17 @@ class asistenciaController {
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error al crear el registro:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "Error al crear el registro:",
+        idpersona,
+        _fechahora,
+        mensajeError
+      );
       res.status(500).json({
-        descripcion: "Error al crear el registro",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error al crear el registro",
+        error: mensajeError,
       });
     }
 
@@ -439,23 +535,41 @@ class asistenciaController {
       );
 
       if (!result) {
-        console.log("error procesado de datos", result);
-        return void res.status(400).json({ msg: "error procesado de datos" });
+        console.log(
+          new Date().toString(),
+          "error procesado de datos",
+          idpersona,
+          _fechahora,
+          result
+        );
+        return void res.status(400).json({
+          estado: "error",
+          msg: "error procesado de datos",
+          error: "error procesado de datos",
+        });
       }
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error al ejecutar el procedimiento:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "Error al ejecutar el procedimiento:",
+        idpersona,
+        _fechahora,
+        mensajeError
+      );
 
       return void res.status(500).json({
-        descripcion: "Error al ejecutar el procedimiento",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error al ejecutar el procedimiento",
+        error: mensajeError,
       });
     }
 
-    console.log("procesado correcto registro biosync", persona.idPersona);
     return void res.status(200).json({
+      estado: "ok",
       msg: "procesado correcto",
+      error: "",
     });
   };
 
@@ -465,14 +579,22 @@ class asistenciaController {
   ): Promise<void> => {
     const validation = validationResult(req);
     if (!validation.isEmpty()) {
-      console.log("error de validacion", validation.array());
-      return void res.status(400).json({ error: validation.array() });
+      console.error(
+        new Date().toString(),
+        "error de validacion",
+        validation.array()
+      );
+      return void res.status(400).json({
+        estado: "error",
+        msg: "error en la validacion",
+        error: validation.array(),
+      });
     }
 
     const { dispositivo, estado } = req.body;
 
     try {
-      const qryRta = await acad_conn.query<encargado>(
+      const qryRta = await rab_conn.query<encargado>(
         "select LTrim(Rtrim(isnull(ciEncargado,''))) as Encargado, IPAddress, Descripcion from Dispositivos where IdDispositivo = :dispositivo",
         {
           replacements: { dispositivo: dispositivo },
@@ -483,8 +605,18 @@ class asistenciaController {
       );
 
       if (!qryRta) {
-        console.log("error procesado de datos", qryRta);
-        return void res.status(400).json({ msg: "error procesado de datos" });
+        console.log(
+          new Date().toString(),
+          "ESTADOBIO - error al obtener el ci del encargado",
+          dispositivo,
+          estado,
+          qryRta
+        );
+        return void res.status(400).json({
+          estado: "error",
+          msg: "error al obtener el ci del encargado",
+          error: qryRta,
+        });
       }
 
       const persona = await Persona.crearPersona(qryRta?.Encargado);
@@ -495,15 +627,24 @@ class asistenciaController {
 
       mensaje.enviarMensaje("000000000000");
 
-      console.log("mensaje enviado", persona.telefono);
+      return void res.status(200).json({
+        estado: "ok",
+        msg: "procesado corrrecto",
+        error: "",
+      });
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
-      console.error("Error al obtener el ci del encargado:", mensajeError);
+      console.error(
+        new Date().toString(),
+        "Error al obtener el ci del encargado:",
+        mensajeError
+      );
 
       return void res.status(500).json({
-        descripcion: "Error al obtener el ci del encargado",
-        msg: mensajeError,
+        estado: "error",
+        msg: "Error al obtener el ci del encargado",
+        error: mensajeError,
       });
     }
   };
@@ -511,27 +652,7 @@ class asistenciaController {
   static pruebitas = async (req: Request, res: Response): Promise<void> => {
     const { id, fecha } = req.body;
 
-    const fechaTmp = parseFechas.parseFechaHora(fecha);
-
-    const _fechahora =
-      fechaTmp?.anio +
-      "-" +
-      fechaTmp?.mes +
-      "-" +
-      fechaTmp?.dia +
-      " " +
-      fechaTmp?.hora +
-      ":" +
-      fechaTmp?.minutos +
-      ":" +
-      fechaTmp?.segundos;
-
-    await RegistroRRHHRepository.generarRegistroRRHH(
-      "5493446-1H",
-      _fechahora,
-      "ADM",
-      3
-    );
+    console.log(new Date().toString(), "pruebitas", id, fecha);
 
     return void res.status(200).json({
       msg: "pruebitas",

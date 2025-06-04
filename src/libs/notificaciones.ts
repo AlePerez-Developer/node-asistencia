@@ -13,6 +13,10 @@ class notificaciones {
     this.salida = salida;
   }
   async enviarNotificacion() {
+    const headers = {
+      "x-api-key": app_config.notificacion_key,
+      "Content-Type": "application/json",
+    };
     const notificacion: notificacion = {
       title: app_config.notificacion_title,
       body: this.mensaje,
