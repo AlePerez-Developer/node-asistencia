@@ -11,14 +11,14 @@ const router = Router();
 router.post(
   "/registroBIO/",
   checkSchema(registroBIOValidator),
-  validateRequest,
+
   asistenciaController.registerEventBIO
 );
 
 router.post(
   "/registroBIOSync/",
   checkSchema(registroBIOValidator),
-  validateRequest,
+
   asistenciaController.registerEventBIOSync
 );
 
@@ -32,7 +32,7 @@ router.post(
 router.post(
   "/estadoBiometrico/",
   checkSchema(estadoBiometricoValidator),
-  validateRequest,
+
   asistenciaController.estadoBiometrico
 );
 
