@@ -30,15 +30,6 @@ export class RegistroRRHHRepository {
         await registroRRHH.save({ returning: false });
         return true;
       } catch (error) {
-        if (error instanceof ValidationError) {
-          console.error("Errores de validación:", error.errors);
-          error.errors.forEach((err) => {
-            console.log(`Campo: ${err.path}, Mensaje: ${err.message}`);
-          });
-        } else {
-          console.error("Error desconocido:", error);
-        }
-
         if (
           error instanceof TypeError &&
           error.message.includes("Cannot read properties of undefined")

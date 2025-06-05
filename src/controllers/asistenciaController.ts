@@ -16,6 +16,7 @@ import { RegistroRABRepository } from "../repositories/registroRAB.repository";
 import { RegistroRRHHRepository } from "../repositories/registroRRHH.repository";
 import { dispositivo_dto } from "../dto/dispositivo.dto";
 import { error } from "console";
+import { estado_biometrico } from "../dto/estado-biometrico.dto";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -620,8 +621,9 @@ class asistenciaController {
       }
 
       const persona = await Persona.crearPersona(qryRta?.Encargado);
+      const _estado = estado_biometrico.create(estado);
 
-      const msgText = `Estimado(a) ${persona.nombreCompleto}\nSe detecto que el biometrico ${dispositivo} - ${qryRta.Descripcion}\nCon direccion IP: ${qryRta.IPAddress} cambio de estado a: ${estado}\nPorfavor tomar encuenta este mensaje para informar a su unidad y/o realizar una verificacion del dispositivo.`;
+      const msgText = `Estimado(a) ${persona.nombreCompleto}\nSe detecto que el biometrico ${dispositivo} - ${qryRta.Descripcion}\nCon direccion IP: ${qryRta.IPAddress} cambio de estado a: ${_estado.estado}\nPorfavor tomar encuenta este mensaje para informar a su unidad y/o realizar una verificacion del dispositivo.`;
 
       const mensaje = new mensajeria(persona.telefono, msgText);
 
@@ -652,7 +654,23 @@ class asistenciaController {
   static pruebitas = async (req: Request, res: Response): Promise<void> => {
     const { id, fecha } = req.body;
 
-    console.log(new Date().toString(), "pruebitas", id, fecha);
+    const fechaTmp = parseFechas.parseFechaHora(fecha);
+
+    const _fechahora =
+      fechaTmp?.anio +
+      "-" +
+      fechaTmp?.mes +
+      "-" +
+      fechaTmp?.dia +
+      " " +
+      fechaTmp?.hora +
+      ":" +
+      fechaTmp?.minutos +
+      ":" +
+      fechaTmp?.segundos;
+
+    const _estado = estado_biometrico.create(1);
+    console.log(_estado.estado);
 
     return void res.status(200).json({
       msg: "pruebitas",
