@@ -17,6 +17,7 @@ import { RegistroRRHHRepository } from "../repositories/registroRRHH.repository"
 import { dispositivo_dto } from "../dto/dispositivo.dto";
 import { error } from "console";
 import { estado_biometrico } from "../dto/estado-biometrico.dto";
+import app_config from "../config/app.config";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -55,20 +56,6 @@ class asistenciaController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    const validation = validationResult(req);
-    if (!validation.isEmpty()) {
-      console.error(
-        new Date().toString(),
-        "REGISTROGEO - error de validacion",
-        validation.array()
-      );
-      return void res.status(400).json({
-        estado: "error",
-        msg: "error en la validacion",
-        error: validation.array(),
-      });
-    }
-
     const { idpersona, fechahora, edificio } = req.body;
 
     const dispositivo = await dispositivo_dto.create(edificio);
@@ -148,7 +135,7 @@ class asistenciaController {
         "REGISTROGEO - Error al crear el registro:",
         mensajeError
       );
-      res.status(500).json({
+      return void res.status(500).json({
         estado: "error",
         msg: "Error al crear el registro",
         error: mensajeError,
@@ -219,7 +206,7 @@ class asistenciaController {
         _fechahora,
         mensajeError
       );
-      res.status(500).json({
+      return void res.status(500).json({
         estado: "error",
         msg: "Error en la ejecucion del procedimiento",
         error: mensajeError,
@@ -245,20 +232,6 @@ class asistenciaController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    const validation = validationResult(req);
-    if (!validation.isEmpty()) {
-      console.error(
-        new Date().toString(),
-        "REGISTROBIO - error de validacion",
-        validation.array()
-      );
-      return void res.status(400).json({
-        estado: "error",
-        msg: "error en la validacion",
-        error: validation.array(),
-      });
-    }
-
     const { idpersona, fechahora, dispositivo } = req.body;
 
     const persona = await Persona.crearPersona(idpersona.trim());
@@ -333,7 +306,7 @@ class asistenciaController {
         _fechahora,
         mensajeError
       );
-      res.status(500).json({
+      return void res.status(500).json({
         estado: "error",
         msg: "Error al crear el registro",
         error: mensajeError,
@@ -422,20 +395,6 @@ class asistenciaController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    const validation = validationResult(req);
-    if (!validation.isEmpty()) {
-      console.error(
-        new Date().toString(),
-        "error de validacion",
-        validation.array()
-      );
-      return void res.status(400).json({
-        estado: "error",
-        msg: "error en la validacion",
-        error: validation.array(),
-      });
-    }
-
     const { idpersona, fechahora, dispositivo } = req.body;
 
     const persona = await Persona.crearPersona(idpersona.trim());
@@ -510,7 +469,7 @@ class asistenciaController {
         _fechahora,
         mensajeError
       );
-      res.status(500).json({
+      return void res.status(500).json({
         estado: "error",
         msg: "Error al crear el registro",
         error: mensajeError,
@@ -578,20 +537,6 @@ class asistenciaController {
     req: Request,
     res: Response
   ): Promise<void> => {
-    const validation = validationResult(req);
-    if (!validation.isEmpty()) {
-      console.error(
-        new Date().toString(),
-        "error de validacion",
-        validation.array()
-      );
-      return void res.status(400).json({
-        estado: "error",
-        msg: "error en la validacion",
-        error: validation.array(),
-      });
-    }
-
     const { dispositivo, estado } = req.body;
 
     try {
@@ -669,8 +614,7 @@ class asistenciaController {
       ":" +
       fechaTmp?.segundos;
 
-    const _estado = estado_biometrico.create(1);
-    console.log(_estado.estado);
+    console.log(app_config.notificacion_key);
 
     return void res.status(200).json({
       msg: "pruebitas",
