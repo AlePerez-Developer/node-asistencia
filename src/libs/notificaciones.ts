@@ -33,7 +33,10 @@ class notificaciones {
     try {
       const response = await axios.post(
         app_config.notificacion_url,
-        notificacion
+        notificacion,
+        {
+          headers,
+        }
       );
       console.log("Respuesta del servidor:", response.data);
     } catch (error) {
