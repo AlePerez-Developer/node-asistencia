@@ -10,11 +10,11 @@ export const validateRequest = (
   if (!errors.isEmpty()) {
     console.error(new Date().toString(), "error de validacion", errors.array());
 
-    res.status(400).json({
+    return void res.status(400).json({
       estado: "error",
       msg: "Error en la validación",
       error: errors.array(),
     });
   }
-  return;
+  next();
 };
