@@ -3,7 +3,7 @@ import asistenciaRoutes from "./routes/asistencia.routes";
 import cors from "cors";
 
 import app_config from "./config/app.config";
-import { initDatabases, rrhh_conn, acad_conn, rab_conn } from "./db";
+import { initDatabases, rrhh_conn, /*acad_conn,*/ rab_conn } from "./db";
 
 class Server {
   private app: Application;
@@ -51,7 +51,7 @@ class Server {
       console.log(message);
     }
 
-    try {
+    /*try {
       await acad_conn.authenticate();
       console.log("db ACAD online");
     } catch (error) {
@@ -59,7 +59,7 @@ class Server {
       if (error instanceof Error) message = error.message;
       else message = String(error);
       console.log(message);
-    }
+    }*/
   }
 
   middlewares() {

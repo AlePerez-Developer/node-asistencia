@@ -1,5 +1,5 @@
 import { QueryTypes } from "sequelize";
-import { acad_conn, rab_conn, rrhh_conn } from "../db";
+import { /*acad_conn,*/ rab_conn, rrhh_conn } from "../db";
 
 import PersonaRAB from "../models/RRHH_models/PersonaRAB";
 
@@ -19,7 +19,7 @@ class Persona {
     idPersonaRRHH: string,
     nombreCompleto: string,
     telefonoPersona: string,
-    tipoFuncionario: string
+    tipoFuncionario: string,
   ) {
     this.idPersona = idPersona;
     this.idPersonaRRHH = idPersonaRRHH;
@@ -39,7 +39,7 @@ class Persona {
       idPersonaRRHH,
       nombreCompleto,
       telefonoPersona,
-      tipoFuncionario
+      tipoFuncionario,
     );
   }
 
@@ -55,7 +55,7 @@ class Persona {
     } catch (error) {
       console.error(
         "Error al obtener el idPersona de recursos humanos de la persona:",
-        (error as Error).message
+        (error as Error).message,
       );
       return this.handleError((error as Error).message, "");
     }
@@ -70,7 +70,7 @@ class Persona {
           type: QueryTypes.SELECT,
           plain: true,
           raw: true,
-        }
+        },
       );
       if (!qryRta) {
         return "";
@@ -80,7 +80,7 @@ class Persona {
     } catch (error) {
       console.error(
         "Error al obtener el nombre de la persona:",
-        (error as Error).message
+        (error as Error).message,
       );
       return this.handleError((error as Error).message, "");
     }
@@ -88,7 +88,7 @@ class Persona {
 
   static async getTelefono(idPersona: string): Promise<string> {
     try {
-      const qryRta = await acad_conn.query<telefono>(
+      /*const qryRta = await acad_conn.query<telefono>(
         "select LTrim(Rtrim(isnull(Celular,''))) as Celular from usuarios where IdPersona = :idpersona and TieneWhatsApp = 1",
         {
           replacements: { idpersona: idPersona },
@@ -100,8 +100,9 @@ class Persona {
 
       if (!qryRta) {
         return "";
-      }
-      const celular: string = qryRta?.Celular ?? "";
+      }*/
+      //const celular: string = qryRta?.Celular ?? "";
+      const celular: string = "70320773";
 
       return celular ? `+591${celular}` : "";
     } catch (error) {
@@ -119,7 +120,7 @@ class Persona {
           type: QueryTypes.SELECT,
           plain: true,
           raw: true,
-        }
+        },
       );
 
       if (!qryRta) {
@@ -130,7 +131,7 @@ class Persona {
     } catch (error) {
       console.error(
         "Error al obtener el tipo de funcionario:",
-        (error as Error).message
+        (error as Error).message,
       );
       return this.handleError((error as Error).message, "DOC");
     }

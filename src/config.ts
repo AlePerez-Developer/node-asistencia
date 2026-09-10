@@ -24,13 +24,13 @@ const config = {
     port: parseInt(process.env.DB_PORT_RAB || "1433 "),
   }),
 
-  getACADDatabaseConfig: () => ({
+  /*getACADDatabaseConfig: () => ({
     username: process.env.DB_USER_ACAD || "",
     password: process.env.DB_PASSWORD_ACAD || "",
     host: process.env.DB_HOST_ACAD || "",
     database: process.env.DB_NAME_ACAD || "",
     port: parseInt(process.env.DB_PORT_ACAD || "1433 "),
-  }),
+  }),*/
 };
 
 export default config;

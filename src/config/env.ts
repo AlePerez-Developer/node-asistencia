@@ -16,11 +16,11 @@ const envSchema = z.object({
   RAB_DB_NAME: z.string(),
   RAB_DB_PORT: z.string(),
 
-  ACAD_DB_USER: z.string(),
+  /*ACAD_DB_USER: z.string(),
   ACAD_DB_PASSWORD: z.string(),
   ACAD_DB_HOST: z.string(),
   ACAD_DB_NAME: z.string(),
-  ACAD_DB_PORT: z.string(),
+  ACAD_DB_PORT: z.string(),*/
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
@@ -28,7 +28,7 @@ const parsedEnv = envSchema.safeParse(process.env);
 if (!parsedEnv.success) {
   console.error(
     "❌ Error en las variables de entorno:",
-    parsedEnv.error.format()
+    parsedEnv.error.format(),
   );
   process.exit(1);
 }

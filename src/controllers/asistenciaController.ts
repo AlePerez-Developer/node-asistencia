@@ -6,7 +6,7 @@ import RegistroLyli from "../models/RRHH_models/Registro";
 import { QueryTypes, Op } from "sequelize";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { acad_conn, rab_conn, rrhh_conn } from "../db";
+import { /*acad_conn,*/ rab_conn, rrhh_conn } from "../db";
 import { sp_procesado } from "../interfaces/sp_procesado.interface";
 import { encargado } from "../interfaces/encargado.interface";
 import { responseGeo } from "../interfaces/responseGeo.interface";
@@ -37,24 +37,24 @@ class asistenciaController {
       rabStatus = false;
     }
 
-    try {
+    /*try {
       await acad_conn.authenticate();
       acadStatus = true;
     } catch (error) {
       acadStatus = false;
-    }
+    }*/
 
     return void res.status(200).json({
       status: "alive",
       dbrrhh: rrhhStatus,
       dbrab: rabStatus,
-      dbacad: acadStatus,
+      //dbacad: acadStatus,
     });
   };
 
   static registerEventGEO = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     const { idpersona, fechahora, edificio } = req.body;
 
@@ -63,7 +63,7 @@ class asistenciaController {
       console.error(
         new Date().toString(),
         "REGISTROGEO - error al obtener el dispositivo, edificio no encontrado",
-        edificio
+        edificio,
       );
       return void res.status(400).json({
         estado: "error",
@@ -105,7 +105,7 @@ class asistenciaController {
         new Date().toString(),
         "REGISTROGEO - registro repetido",
         idpersona,
-        _fechahora
+        _fechahora,
       );
       return void res.status(400).json({
         estado: "error",
@@ -133,7 +133,7 @@ class asistenciaController {
       console.error(
         new Date().toString(),
         "REGISTROGEO - Error al crear el registro:",
-        mensajeError
+        mensajeError,
       );
       return void res.status(500).json({
         estado: "error",
@@ -157,7 +157,7 @@ class asistenciaController {
           type: QueryTypes.SELECT,
           plain: false,
           raw: true,
-        }
+        },
       );
 
       if (!result) {
@@ -166,7 +166,7 @@ class asistenciaController {
           "REGISTROGEO - error procesado de datos",
           idpersona,
           _fechahora,
-          result
+          result,
         );
         return void res.status(400).json({
           estado: "error",
@@ -204,7 +204,7 @@ class asistenciaController {
         "REGISTROGEO - Error en la ejecucion del procedimiento:",
         idpersona,
         _fechahora,
-        mensajeError
+        mensajeError,
       );
       return void res.status(500).json({
         estado: "error",
@@ -230,7 +230,7 @@ class asistenciaController {
 
   static registerEventBIO = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     const { idpersona, fechahora, dispositivo } = req.body;
 
@@ -254,7 +254,7 @@ class asistenciaController {
       persona.idPersonaRRHH,
       _fechahora,
       persona.tipoFuncionario,
-      dispositivo
+      dispositivo,
     );
 
     if (persona.tipoFuncionario !== "DOC") {
@@ -262,7 +262,7 @@ class asistenciaController {
         persona.idPersonaRRHH,
         _fechahora,
         persona.tipoFuncionario,
-        dispositivo
+        dispositivo,
       );
     }
 
@@ -304,7 +304,7 @@ class asistenciaController {
         "REGISTROBIO - Error al crear el registro:",
         idpersona,
         _fechahora,
-        mensajeError
+        mensajeError,
       );
       return void res.status(500).json({
         estado: "error",
@@ -328,7 +328,7 @@ class asistenciaController {
           type: QueryTypes.SELECT,
           plain: false,
           raw: true,
-        }
+        },
       );
 
       if (!result) {
@@ -337,7 +337,7 @@ class asistenciaController {
           "REGISTROBIO - error procesado de datos",
           idpersona,
           _fechahora,
-          result
+          result,
         );
         return void res.status(400).json({
           estado: "error",
@@ -359,7 +359,7 @@ class asistenciaController {
           const notificacion = new notificaciones(
             persona.idPersona,
             msgText,
-            row.SalidaSellado
+            row.SalidaSellado,
           );
 
           mensaje.enviarMensaje(row.Cm);
@@ -374,7 +374,7 @@ class asistenciaController {
         "Error al ejecutar el procedimiento:",
         idpersona,
         _fechahora,
-        mensajeError
+        mensajeError,
       );
 
       return void res.status(500).json({
@@ -393,7 +393,7 @@ class asistenciaController {
 
   static registerEventBIOSync = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     const { idpersona, fechahora, dispositivo } = req.body;
 
@@ -417,7 +417,7 @@ class asistenciaController {
       persona.idPersonaRRHH,
       _fechahora,
       persona.tipoFuncionario,
-      dispositivo
+      dispositivo,
     );
 
     if (persona.tipoFuncionario !== "DOC") {
@@ -425,7 +425,7 @@ class asistenciaController {
         persona.idPersonaRRHH,
         _fechahora,
         persona.tipoFuncionario,
-        dispositivo
+        dispositivo,
       );
     }
 
@@ -467,7 +467,7 @@ class asistenciaController {
         "Error al crear el registro:",
         idpersona,
         _fechahora,
-        mensajeError
+        mensajeError,
       );
       return void res.status(500).json({
         estado: "error",
@@ -491,7 +491,7 @@ class asistenciaController {
           type: QueryTypes.SELECT,
           plain: false,
           raw: true,
-        }
+        },
       );
 
       if (!result) {
@@ -500,7 +500,7 @@ class asistenciaController {
           "error procesado de datos",
           idpersona,
           _fechahora,
-          result
+          result,
         );
         return void res.status(400).json({
           estado: "error",
@@ -516,7 +516,7 @@ class asistenciaController {
         "Error al ejecutar el procedimiento:",
         idpersona,
         _fechahora,
-        mensajeError
+        mensajeError,
       );
 
       return void res.status(500).json({
@@ -535,7 +535,7 @@ class asistenciaController {
 
   static estadoBiometrico = async (
     req: Request,
-    res: Response
+    res: Response,
   ): Promise<void> => {
     const { dispositivo, estado } = req.body;
 
@@ -547,7 +547,7 @@ class asistenciaController {
           type: QueryTypes.SELECT,
           plain: true,
           raw: true,
-        }
+        },
       );
 
       if (!qryRta) {
@@ -556,7 +556,7 @@ class asistenciaController {
           "ESTADOBIO - error al obtener el ci del encargado",
           dispositivo,
           estado,
-          qryRta
+          qryRta,
         );
         return void res.status(400).json({
           estado: "error",
@@ -585,7 +585,7 @@ class asistenciaController {
       console.error(
         new Date().toString(),
         "Error al obtener el ci del encargado:",
-        mensajeError
+        mensajeError,
       );
 
       return void res.status(500).json({
