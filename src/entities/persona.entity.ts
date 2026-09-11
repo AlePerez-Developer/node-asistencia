@@ -1,11 +1,10 @@
 import { QueryTypes } from "sequelize";
-import { /*acad_conn,*/ rab_conn, rrhh_conn } from "../db";
+import { rrhh_conn } from "../db";
 
 import PersonaRAB from "../models/RRHH_models/PersonaRAB";
 
 import { nombreCompleto } from "../interfaces/nombreCompleto.interface";
 import { tipoFuncionario } from "../interfaces/tipoFuncionario.interface";
-import { telefono } from "../interfaces/telefono.interface";
 
 class Persona {
   public idPersona: string;

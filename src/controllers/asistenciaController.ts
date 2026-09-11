@@ -362,8 +362,8 @@ class asistenciaController {
             row.SalidaSellado,
           );
 
-          mensaje.enviarMensaje(row.Cm);
-          notificacion.enviarNotificacion();
+          //mensaje.enviarMensaje(row.Cm);
+          //notificacion.enviarNotificacion();
         }
       });
     } catch (error) {
@@ -572,7 +572,7 @@ class asistenciaController {
 
       const mensaje = new mensajeria(persona.telefono, msgText);
 
-      mensaje.enviarMensaje("000000000000");
+      //mensaje.enviarMensaje("000000000000");
 
       return void res.status(200).json({
         estado: "ok",
