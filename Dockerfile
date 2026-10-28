@@ -1,37 +1,32 @@
-# Selecciona la imagen base para construir
-FROM node:26.12.1-alpine AS constructor
+# --- Etapa 1: Constructor ---
+FROM node:24.22.1-alpine AS constructor
 
-# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copia los archivos package.json y package-lock.json al directorio de trabajo
 COPY package*.json ./
+RUN npm ci
 
-# Instala TODAS las dependencias 
-RUN npm install
-
-# Copia el resto del código fuente
 COPY . .
-
-# Compila el código TypeScript a JavaScript
 RUN npm run build
 
-# Etapa de producción
-FROM node:26.12.1-alpine
+# Elimina dependencias de desarrollo para dejar la carpeta node_modules limpia
+RUN npm prune --omit=dev
 
-# Define el directorio de trabajo
+
+# --- Etapa 2: Producción ---
+FROM node:24.22.1-alpine
+
+# Buenas prácticas de seguridad: no ejecutar como root
+USER node
+
 WORKDIR /app
 
-# Copia los archivos package.json y package-lock.json al directorio de trabajo
+# Copia solo lo estrictamente necesario desde el constructor
 COPY --from=constructor /app/package*.json ./
-#COPY --from=constructor .public ./public
 COPY --from=constructor /app/dist ./dist
+COPY --from=constructor /app/node_modules ./node_modules
 
-# Instala solo las dependencias de producción y limpia la caché
-RUN npm install --production && npm prune --production && npm cache clean --force
-
-# Expone el puerto en el que el servidor está escuchando
 EXPOSE 3333
 
-# Ejecuta el comando para iniciar la aplicación
-CMD ["npm","start"]
+# Ejecución directa y eficiente (Evita problemas de PID 1)
+CMD ["node", "dist/app.js"]

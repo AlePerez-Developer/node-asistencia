@@ -4,11 +4,11 @@ services:
     container_name: node-asistencia
     build:
       context: .
-    command: sh -c "npm start"
     ports:
-      - 3333:3333
+      - "3333:3333"
     env_file:
       - .env
+    user: "node"
     networks:
       - redasistenciaAle
 
