@@ -23,13 +23,20 @@ import Registro from "../models/RRHH_V3_models/Registro";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
-    let rrhhStatus, rabStatus, acadStatus: boolean;
+    let rrhhStatus, rabStatus, acadStatus, rrhhv3Status: boolean;
 
     try {
       await rrhh_conn.authenticate();
       rrhhStatus = true;
     } catch (error) {
       rrhhStatus = false;
+    }
+
+    try {
+      await rrhh_v3_conn.authenticate();
+      rrhhv3Status = true;
+    } catch (error) {
+      rrhhv3Status = false;
     }
 
     try {
@@ -49,6 +56,7 @@ class asistenciaController {
     return void res.status(200).json({
       status: "alive",
       dbrrhh: rrhhStatus,
+      dbrrhhv3: rrhhv3Status,
       dbrab: rabStatus,
       //dbacad: acadStatus,
     });
@@ -734,31 +742,6 @@ class asistenciaController {
         error: mensajeError,
       });
     }
-  };
-
-  static pruebitas = async (req: Request, res: Response): Promise<void> => {
-    const { id, fecha } = req.body;
-
-    const fechaTmp = parseFechas.parseFechaHora(fecha);
-
-    const _fechahora =
-      fechaTmp?.anio +
-      "-" +
-      fechaTmp?.mes +
-      "-" +
-      fechaTmp?.dia +
-      " " +
-      fechaTmp?.hora +
-      ":" +
-      fechaTmp?.minutos +
-      ":" +
-      fechaTmp?.segundos;
-
-    console.log(app_config.notificacion_key);
-
-    return void res.status(200).json({
-      msg: "pruebitas",
-    });
   };
 }
 

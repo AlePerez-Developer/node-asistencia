@@ -43,8 +43,6 @@ router.post(
   asistenciaController.registerEventADM,
 );
 
-router.post("/pruebitas/", asistenciaController.pruebitas);
-
 router.get("/getStatus", asistenciaController.getStatus);
 
 export default router;
