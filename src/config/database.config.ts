@@ -18,6 +18,15 @@ const databaseConfig = {
     password: env.RAB_DB_PASSWORD,
     port: env.RAB_DB_PORT,
   },
+
+  RRHH_V3_db: {
+    dialect: "mssql",
+    host: env.RRHH_V3_DB_HOST,
+    database: env.RRHH_V3_DB_NAME,
+    username: env.RRHH_V3_DB_USER,
+    password: env.RRHH_V3_DB_PASSWORD,
+    port: env.RRHH_V3_DB_PORT,
+  },
 };
 
 export default databaseConfig;

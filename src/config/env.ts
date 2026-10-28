@@ -10,6 +10,12 @@ const envSchema = z.object({
   RRHH_DB_NAME: z.string(),
   RRHH_DB_PORT: z.string(),
 
+  RRHH_V3_DB_USER: z.string(),
+  RRHH_V3_DB_PASSWORD: z.string(),
+  RRHH_V3_DB_HOST: z.string(),
+  RRHH_V3_DB_NAME: z.string(),
+  RRHH_V3_DB_PORT: z.string(),
+
   RAB_DB_USER: z.string(),
   RAB_DB_PASSWORD: z.string(),
   RAB_DB_HOST: z.string(),
@@ -21,6 +27,8 @@ const envSchema = z.object({
   ACAD_DB_HOST: z.string(),
   ACAD_DB_NAME: z.string(),
   ACAD_DB_PORT: z.string(),*/
+
+  biometricoKey: z.string(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

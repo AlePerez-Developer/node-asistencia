@@ -3,7 +3,12 @@ import asistenciaRoutes from "./routes/asistencia.routes";
 import cors from "cors";
 
 import app_config from "./config/app.config";
-import { initDatabases, rrhh_conn, /*acad_conn,*/ rab_conn } from "./db";
+import {
+  initDatabases,
+  rrhh_conn,
+  /*acad_conn,*/ rab_conn,
+  rrhh_v3_conn,
+} from "./db";
 
 class Server {
   private app: Application;
@@ -34,6 +39,16 @@ class Server {
     try {
       await rrhh_conn.authenticate();
       console.log("db RRHH online");
+    } catch (error) {
+      let message;
+      if (error instanceof Error) message = error.message;
+      else message = String(error);
+      console.log(message);
+    }
+
+    try {
+      await rrhh_v3_conn.authenticate();
+      console.log("db RRHH_V3 online");
     } catch (error) {
       let message;
       if (error instanceof Error) message = error.message;

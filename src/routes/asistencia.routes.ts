@@ -12,28 +12,35 @@ router.post(
   "/registroBIO/",
   checkSchema(registroBIOValidator),
   validateRequest,
-  asistenciaController.registerEventBIO
+  asistenciaController.registerEventBIO,
 );
 
 router.post(
   "/registroBIOSync/",
   checkSchema(registroBIOValidator),
   validateRequest,
-  asistenciaController.registerEventBIOSync
+  asistenciaController.registerEventBIOSync,
 );
 
 router.post(
   "/registroGEO/",
   checkSchema(registroGEOValidator),
   validateRequest,
-  asistenciaController.registerEventGEO
+  asistenciaController.registerEventGEO,
 );
 
 router.post(
   "/estadoBiometrico/",
   checkSchema(estadoBiometricoValidator),
   validateRequest,
-  asistenciaController.estadoBiometrico
+  asistenciaController.estadoBiometrico,
+);
+
+router.post(
+  "/registroADM/",
+  checkSchema(registroBIOValidator),
+  validateRequest,
+  asistenciaController.registerEventADM,
 );
 
 router.post("/pruebitas/", asistenciaController.pruebitas);

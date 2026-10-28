@@ -1,5 +1,5 @@
 # Selecciona la imagen base para construir
-FROM node:20-alpine AS constructor
+FROM node:26.12.1-alpine AS constructor
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
@@ -17,14 +17,13 @@ COPY . .
 RUN npm run build
 
 # Etapa de producción
-FROM node:20-alpine
+FROM node:26.12.1-alpine
 
 # Define el directorio de trabajo
 WORKDIR /app
 
 # Copia los archivos package.json y package-lock.json al directorio de trabajo
 COPY --from=constructor /app/package*.json ./
-COPY --from=constructor /app/.env ./.env
 #COPY --from=constructor .public ./public
 COPY --from=constructor /app/dist ./dist
 

@@ -6,7 +6,7 @@ import RegistroLyli from "../models/RRHH_models/Registro";
 import { QueryTypes, Op } from "sequelize";
 import { Request, Response } from "express";
 import { validationResult } from "express-validator";
-import { /*acad_conn,*/ rab_conn, rrhh_conn } from "../db";
+import { /*acad_conn,*/ rab_conn, rrhh_conn, rrhh_v3_conn } from "../db";
 import { sp_procesado } from "../interfaces/sp_procesado.interface";
 import { encargado } from "../interfaces/encargado.interface";
 import { responseGeo } from "../interfaces/responseGeo.interface";
@@ -18,6 +18,8 @@ import { dispositivo_dto } from "../dto/dispositivo.dto";
 import { error } from "console";
 import { estado_biometrico } from "../dto/estado-biometrico.dto";
 import app_config from "../config/app.config";
+import { hashHmac } from "../functions";
+import Registro from "../models/RRHH_V3_models/Registro";
 
 class asistenciaController {
   static getStatus = async (req: Request, res: Response) => {
@@ -366,6 +368,144 @@ class asistenciaController {
           //notificacion.enviarNotificacion();
         }
       });
+    } catch (error) {
+      const mensajeError =
+        error instanceof Error ? error.message : String(error);
+      console.error(
+        new Date().toString(),
+        "Error al ejecutar el procedimiento:",
+        idpersona,
+        _fechahora,
+        mensajeError,
+      );
+
+      return void res.status(500).json({
+        estado: "error",
+        msg: "Error al ejecutar el procedimiento",
+        error: mensajeError,
+      });
+    }
+
+    return void res.status(200).json({
+      estado: "ok",
+      msg: "procesado correcto registro BIO",
+      error: "",
+    });
+  };
+
+  static registerEventADM = async (
+    req: Request,
+    res: Response,
+  ): Promise<void> => {
+    const { idpersona, fechahora, dispositivo } = req.body;
+
+    const persona = await Persona.crearPersona(idpersona.trim());
+    const fechaTmp = parseFechas.parseFechaHora(fechahora);
+    const fechaTmpStr = parseFechas.parseFechaHoraStr(fechahora);
+
+    const _fechahora =
+      fechaTmp?.anio +
+      "-" +
+      fechaTmp?.mes +
+      "-" +
+      fechaTmp?.dia +
+      " " +
+      fechaTmp?.hora +
+      ":" +
+      fechaTmp?.minutos +
+      ":" +
+      fechaTmp?.segundos;
+
+    const hash = hashHmac(
+      idpersona,
+      fechaTmpStr?.dia?.toString() ?? "",
+      fechaTmpStr?.mes?.toString() ?? "",
+      fechaTmpStr?.anio?.toString() ?? "",
+      fechaTmpStr?.hora?.toString() ?? "",
+      fechaTmpStr?.minutos?.toString() ?? "",
+      fechaTmpStr?.segundos?.toString() ?? "",
+      dispositivo,
+    );
+
+    const exists = await Registro.findOne({
+      where: {
+        idPersona: persona.idPersona,
+        FechaHora: _fechahora,
+        TipoFuncionario: persona.tipoFuncionario,
+        IdDispositivo: dispositivo,
+      },
+    });
+
+    if (exists) {
+      return void res.status(400).json({
+        estado: "error",
+        msg: "ya existe un registro",
+        error: "registro repetido",
+      });
+    }
+
+    const registro = Registro.build();
+    try {
+      registro.idPersona = persona.idPersona;
+      registro.FechaHora = _fechahora;
+      registro.TipoFuncionario = persona.tipoFuncionario;
+      registro.IdDispositivo = dispositivo;
+      registro.EnLinea = 1;
+      registro.CodigoProcesado = null;
+      registro.TipoMarcado = "BIO";
+      registro.HashBiometrico = hash;
+      registro.FechaHoraProcesado = null;
+
+      await registro.validate();
+      await registro.save();
+    } catch (error) {
+      const mensajeError =
+        error instanceof Error ? error.message : String(error);
+      console.error(
+        new Date().toString(),
+        "REGISTROBIO - Error al crear el registro:",
+        idpersona,
+        _fechahora,
+        mensajeError,
+      );
+      return void res.status(500).json({
+        estado: "error",
+        msg: "Error al crear el registro",
+        error: mensajeError,
+      });
+    }
+
+    try {
+      const result = await rrhh_v3_conn.query<sp_procesado>(
+        `SET LANGUAGE spanish; 
+       EXECUTE ProcesarAsistenciaADM @idpersona = :idpersona, @horaSellado = :fechahora, @iddispositivo = :dispositivo, @idregistro = :idregisto, @mostrarMensaje = :mostrarMensaje;`,
+        {
+          replacements: {
+            idpersona: persona.idPersona,
+            fechahora: fechahora,
+            dispositivo: dispositivo,
+            idregisto: registro.id,
+            mostrarMensaje: 1,
+          },
+          type: QueryTypes.SELECT,
+          plain: false,
+          raw: true,
+        },
+      );
+      if (!result) {
+        console.error(
+          new Date().toString(),
+          "REGISTROADM - error procesado de datos",
+          idpersona,
+          _fechahora,
+          result,
+        );
+        return void res.status(400).json({
+          estado: "error",
+          msg: "error procesado de datos",
+          error: "error procesado de datos",
+        });
+      }
     } catch (error) {
       const mensajeError =
         error instanceof Error ? error.message : String(error);
